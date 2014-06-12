@@ -1,0 +1,9 @@
+{
+    "name" : "media_format",
+    "license" : "Closed",
+    "version" : "0.0.1",
+    "description" : "An abstraction layer implementation using the format lib for cross platform media loading.",
+    "contributors" : [ "GameDuell GmbH" ],
+    "dependencies" : [ "" ]
+    "releasenote" : ""
+}
