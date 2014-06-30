@@ -2,6 +2,7 @@
 <extension>
 
 	<haxelib name="types" />
-	<haxelib name="media_format"/>
+
+    <include path="backends/media_format/include.xml" />
 
 </extension>
