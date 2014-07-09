@@ -23,6 +23,7 @@ class BitmapDataPNGFactory
             case ColTrue(alpha):
 
                 var bytes : Bytes = Tools.extract32(png);
+
                 var data = new types.Data(bytes.length);
                 var dataOutputStream = new DataOutputStream(data);
                 var bytesInputStream = new BytesInput(bytes);
@@ -35,10 +36,10 @@ class BitmapDataPNGFactory
                     var a = bytesInputStream.readByte();
 
                     #if flash
-                        dataOutputStream.writeInt(a, DataTypeUInt8);
-                        dataOutputStream.writeInt(r, DataTypeUInt8);
-                        dataOutputStream.writeInt(g, DataTypeUInt8);
                         dataOutputStream.writeInt(b, DataTypeUInt8);
+                        dataOutputStream.writeInt(g, DataTypeUInt8);
+                        dataOutputStream.writeInt(r, DataTypeUInt8);
+                        dataOutputStream.writeInt(a, DataTypeUInt8);
                     #else
                         dataOutputStream.writeInt(r, DataTypeUInt8);
                         dataOutputStream.writeInt(g, DataTypeUInt8);
@@ -49,9 +50,9 @@ class BitmapDataPNGFactory
 
                 var bitmapData;
                 #if flash
-                    bitmapData =  new BitmapData(data, header.width, header.height, BitmapComponentFormatARGB8888, ImageFormatPNG);
+                    bitmapData =  new BitmapData(data, header.width, header.height, BitmapComponentFormat.BitmapComponentFormatARGB8888, ImageFormatPNG);
                 #else
-                    bitmapData = new BitmapData(data, header.width, header.height, BitmapComponentFormatRGBA8888, ImageFormatPNG);
+                    bitmapData = new BitmapData(data, header.width, header.height, BitmapComponentFormat.BitmapComponentFormatRGBA8888, ImageFormatPNG);
                 #end
 
                 return bitmapData;
