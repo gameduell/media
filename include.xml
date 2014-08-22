@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<extension>
-
-	<haxelib name="types" />
-
-    <include path="backends/media_format/include.xml" />
-
-</extension>

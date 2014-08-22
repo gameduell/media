@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+
+	<duellib name="types" />
+
+    <include path="backends/media_format/duell_library.xml" />
+
+</library>
