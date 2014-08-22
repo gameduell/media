@@ -9,4 +9,5 @@ package media.bitmap;
 enum BitmapComponentFormat
 {
     BitmapComponentFormatRGBA8888;
+    BitmapComponentFormatARGB8888;
 }

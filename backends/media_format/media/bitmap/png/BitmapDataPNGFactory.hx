@@ -5,32 +5,25 @@ import media.bitmap.BitmapData;
 import types.DataOutputStream;
 import haxe.io.Bytes;
 import types.haxeinterop.HaxeInputInteropStream;
-import types.haxeinterop.HaxeOutputInteropStream;
 import format.png.Tools;
 import format.png.Reader;
 import types.InputStream;
 import types.Data;
 
-import types.haxeinterop.DataBytesTools;
-
-import format.png.Data;
-import media.bitmap.ImageFormat;
-
 @:access(media.bitmap.BitmapData)
 class BitmapDataPNGFactory
 {
     public static function decodeStream(input : InputStream) : BitmapData
-	{
+    {
         var haxeInput = new HaxeInputInteropStream(input);
-        var png = new Reader (haxeInput).read();
+        var png = new Reader(haxeInput).read();
         var header = Tools.getHeader(png);
-
-
         switch(header.color)
         {
             case ColTrue(alpha):
 
                 var bytes : Bytes = Tools.extract32(png);
+
                 var data = new types.Data(bytes.length);
                 var dataOutputStream = new DataOutputStream(data);
                 var bytesInputStream = new BytesInput(bytes);
@@ -42,17 +35,31 @@ class BitmapDataPNGFactory
                     var r = bytesInputStream.readByte();
                     var a = bytesInputStream.readByte();
 
-                    dataOutputStream.writeInt(r, DataTypeUInt8);
-                    dataOutputStream.writeInt(g, DataTypeUInt8);
-                    dataOutputStream.writeInt(b, DataTypeUInt8);
-                    dataOutputStream.writeInt(a, DataTypeUInt8);
+                    #if flash
+                        dataOutputStream.writeInt(b, DataTypeUInt8);
+                        dataOutputStream.writeInt(g, DataTypeUInt8);
+                        dataOutputStream.writeInt(r, DataTypeUInt8);
+                        dataOutputStream.writeInt(a, DataTypeUInt8);
+                    #else
+                        dataOutputStream.writeInt(r, DataTypeUInt8);
+                        dataOutputStream.writeInt(g, DataTypeUInt8);
+                        dataOutputStream.writeInt(b, DataTypeUInt8);
+                        dataOutputStream.writeInt(a, DataTypeUInt8);
+                    #end
                 }
 
-                return new BitmapData(data, header.width, header.height, BitmapComponentFormatRGBA8888, ImageFormatPNG);
+                var bitmapData;
+                #if flash
+                    bitmapData =  new BitmapData(data, header.width, header.height, BitmapComponentFormat.BitmapComponentFormatARGB8888, ImageFormatPNG);
+                #else
+                    bitmapData = new BitmapData(data, header.width, header.height, BitmapComponentFormat.BitmapComponentFormatRGBA8888, ImageFormatPNG);
+                #end
+
+                return bitmapData;
 
             default:
                 throw "Unsupported PNG, only RGB(A) is currently supported";
 
         }
-}
+    }
 }
