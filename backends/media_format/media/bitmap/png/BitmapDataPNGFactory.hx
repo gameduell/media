@@ -22,7 +22,7 @@ class BitmapDataPNGFactory
         {
             case ColTrue(alpha):
 
-                var bytes : Bytes = Tools.extract32(png);
+                var bytes: Bytes = Tools.extract32(png); // TODO Maybe we find a faster way to deliver this data
 
                 var data = new types.Data(bytes.length);
                 var dataOutputStream = new DataOutputStream(data);
@@ -30,32 +30,11 @@ class BitmapDataPNGFactory
 
                 for(i in 0...cast (bytes.length / 4))
                 {
-                    var b = bytesInputStream.readByte();
-                    var g = bytesInputStream.readByte();
-                    var r = bytesInputStream.readByte();
-                    var a = bytesInputStream.readByte();
-
-                    #if flash
-                        dataOutputStream.writeInt(b, DataTypeUInt8);
-                        dataOutputStream.writeInt(g, DataTypeUInt8);
-                        dataOutputStream.writeInt(r, DataTypeUInt8);
-                        dataOutputStream.writeInt(a, DataTypeUInt8);
-                    #else
-                        dataOutputStream.writeInt(r, DataTypeUInt8);
-                        dataOutputStream.writeInt(g, DataTypeUInt8);
-                        dataOutputStream.writeInt(b, DataTypeUInt8);
-                        dataOutputStream.writeInt(a, DataTypeUInt8);
-                    #end
+                    var h = bytesInputStream.readInt32();
+                    dataOutputStream.writeInt(h, DataTypeInt32);
                 }
 
-                var bitmapData;
-                #if flash
-                    bitmapData =  new BitmapData(data, header.width, header.height, BitmapComponentFormat.BitmapComponentFormatARGB8888, ImageFormatPNG);
-                #else
-                    bitmapData = new BitmapData(data, header.width, header.height, BitmapComponentFormat.BitmapComponentFormatRGBA8888, ImageFormatPNG);
-                #end
-
-                return bitmapData;
+                return new BitmapData(data, header.width, header.height, BitmapComponentFormat.BGRA8888, ImageFormatPNG);
 
             default:
                 throw "Unsupported PNG, only RGB(A) is currently supported";
