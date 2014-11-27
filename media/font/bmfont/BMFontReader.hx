@@ -36,6 +36,11 @@ class BMFontReader
             }
         }
 
+        if (currentFont.kerningsMap == null)
+        {
+            currentFont.kerningsMap = new IntIntHashTable(2, 2, false, 2);
+        }
+
         // TODO throw error if this font has no x char.
         currentFont.xHeight = currentFont.charMap.get(FontConstants.xHeightCharCode).height;
 
