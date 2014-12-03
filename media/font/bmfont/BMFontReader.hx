@@ -7,6 +7,8 @@ import de.polygonal.ds.IntHashTable;
 //import haxe.io.Bytes;
 //import haxe.io.BytesInput;
 //import sys.io.FileInput;
+
+using StringTools;
 /*
 enum ReadStatus
 {
@@ -32,7 +34,13 @@ class BMFontReader
             var lines = fileAsString.split("\n");
             while (lines.length > 0)
             {
-                readLine(lines.shift());
+                var line = lines.shift();
+
+                if (line.charCodeAt(line.length - 1) == 13)
+                {
+                    line = line.substr(0, line.length - 1);
+                }
+                readLine(line);
             }
         }
 
