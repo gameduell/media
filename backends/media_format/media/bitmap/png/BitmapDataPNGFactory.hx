@@ -1,14 +1,21 @@
 package media.bitmap.png;
 
-import haxe.io.BytesInput;
 import media.bitmap.BitmapData;
+
+import haxe.io.BytesInput;
+
 import types.DataOutputStream;
-import haxe.io.Bytes;
-import types.haxeinterop.HaxeInputInteropStream;
+
 import format.png.Tools;
 import format.png.Reader;
-import types.InputStream;
+
+import haxe.io.Bytes;
+
 import types.Data;
+import types.InputStream;
+import types.haxeinterop.HaxeInputInteropStream;
+import types.haxeinterop.HaxeOutputInteropStream;
+using types.haxeinterop.DataBytesTools;
 
 @:access(media.bitmap.BitmapData)
 class BitmapDataPNGFactory
@@ -25,14 +32,12 @@ class BitmapDataPNGFactory
                 var bytes: Bytes = Tools.extract32(png); // TODO Maybe we find a faster way to deliver this data
 
                 var data = new types.Data(bytes.length);
-                var dataOutputStream = new DataOutputStream(data);
-                var bytesInputStream = new BytesInput(bytes);
 
-                for(i in 0...cast (bytes.length / 4))
-                {
-                    var h = bytesInputStream.readInt32();
-                    dataOutputStream.writeInt(h, DataTypeInt32);
-                }
+                var dataStream = new DataOutputStream(data);
+
+                var bytesStream = new HaxeOutputInteropStream(dataStream);
+
+                bytesStream.writeBytes(bytes, 0, bytes.length);
 
                 return new BitmapData(data, header.width, header.height, BitmapComponentFormat.BGRA8888, ImageFormatPNG);
 
