@@ -36,10 +36,12 @@ class BMFontReader
             {
                 var line = lines.shift();
 
+                // This is to make it work on Windows
                 if (line.charCodeAt(line.length - 1) == 13)
                 {
                     line = line.substr(0, line.length - 1);
                 }
+
                 readLine(line);
             }
         }
