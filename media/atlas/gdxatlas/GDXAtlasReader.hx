@@ -21,8 +21,20 @@ class GDXAtlasReader
             removeEnterFromLine(line);
             parseAtlasImageName(line);
 
-            // TODO Ignore Format for now
-            lines.shift();
+            // TODO Ignore Size for now
+            line = lines.shift();
+
+            // We do this check to support two output formats of the .atlas file
+            var checkLineArray: Array<String> = line.split(":");
+            if (checkLineArray[0] == "size")
+            {
+                // TODO Ignore Format for now
+                lines.shift();
+            }
+            else
+            {
+                // Size was actually already format
+            }
 
             // TODO Ignore Filter for now
             lines.shift();
