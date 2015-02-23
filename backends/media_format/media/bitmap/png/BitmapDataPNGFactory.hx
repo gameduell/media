@@ -31,13 +31,7 @@ class BitmapDataPNGFactory
 
                 var bytes: Bytes = Tools.extract32(png); // TODO Maybe we find a faster way to deliver this data
 
-                var data = new types.Data(bytes.length);
-
-                var dataStream = new DataOutputStream(data);
-
-                var bytesStream = new HaxeOutputInteropStream(dataStream);
-
-                bytesStream.writeBytes(bytes, 0, bytes.length);
+                var data = bytes.getTypesData();
 
                 return new BitmapData(data, header.width, header.height, BitmapComponentFormat.BGRA8888, ImageFormatPNG);
 
