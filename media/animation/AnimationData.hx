@@ -17,8 +17,11 @@ class AnimationData
     public var scaleX (default, default): TimelineData;
     public var scaleY (default, default): TimelineData;
     public var alpha (default, default): TimelineData;
+    public var colorR (default, default): TimelineData;
+    public var colorG (default, default): TimelineData;
+    public var colorB (default, default): TimelineData;
 
-    public function new(x: TimelineData, y: TimelineData, r: TimelineData, sx: TimelineData, sy: TimelineData, a: TimelineData)
+    public function new(x: TimelineData, y: TimelineData, r: TimelineData, sx: TimelineData, sy: TimelineData, cR: TimelineData, cG: TimelineData, cB: TimelineData, a: TimelineData)
     {
         positionX = x;
         positionY = y;
@@ -26,5 +29,8 @@ class AnimationData
         scaleX = sx;
         scaleY = sy;
         alpha = a;
+        colorR = cR;
+        colorG = cG;
+        colorB = cB;
     }
 }
