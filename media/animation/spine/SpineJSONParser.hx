@@ -60,15 +60,10 @@ class SpineJSONParser
 		var rTimeline: TimelineData = null;
 		var sxTimeline: TimelineData = null;
 		var syTimeline: TimelineData = null;
-		var aTimeline: TimelineData = null;
-
-			// We only care about timelines here :)
-			// (The timelines are nested in two more objects, so the 5th " will give us the start of the timeline).
-		for (i in 0...5)
-		{
-			startIndex = data.indexOf("\"", startIndex) + 1;
-		}
-		--startIndex;
+		var cATimeline: TimelineData = null;
+		var cRTimeline: TimelineData = null;
+		var cGTimeline: TimelineData = null;
+		var cBTimeline: TimelineData = null;
 
 		var oldEnd: Int = endIndex;
 
@@ -80,6 +75,11 @@ class SpineJSONParser
 				break;
 			}
 
+			while (name != "rotate" && name != "color" && name != "translate" && name != "scale")
+			{
+				name = findNextString();
+			}
+
 			startIndex = data.indexOf("[", startIndex) + 1;
 
 			switch (name)
@@ -87,7 +87,11 @@ class SpineJSONParser
 				case "rotate":
 					rTimeline = parseFloatTimeline();
 				case "color":
-					aTimeline = parseFloatTimeline();
+					var timelines: Array<TimelineData> = parseColorTimeline();
+					cRTimeline = timelines[0];
+					cGTimeline = timelines[1];
+					cBTimeline = timelines[2];
+					cATimeline = timelines[3];
 				case "scale":
 					var timelines: Array<TimelineData> = parseVec2Timeline();
 					sxTimeline = timelines[0];
@@ -96,15 +100,13 @@ class SpineJSONParser
 					var timelines: Array<TimelineData> = parseVec2Timeline();
 					xTimeline = timelines[0];
 					yTimeline = timelines[1];
-				default:
-					trace('Unknown timeline $name');
 			}
 
 			endIndex = oldEnd;
 		}
 		endIndex = oldEnd;
 
-		var animationData = new AnimationData(xTimeline, yTimeline, rTimeline, sxTimeline, syTimeline, aTimeline);
+		var animationData = new AnimationData(xTimeline, yTimeline, rTimeline, sxTimeline, syTimeline, cRTimeline, cGTimeline, cBTimeline, cATimeline);
 		return animationData;
 	}
 
@@ -122,7 +124,7 @@ class SpineJSONParser
 				break;
 			}
 
-			parseKeyframe(times, values, null, tweens);
+			parseKeyframe(times, values, null, null, null, tweens);
 
 			startIndex = endIndex;
 			endIndex = oldEnd;
@@ -136,6 +138,51 @@ class SpineJSONParser
 		}
 
 		return new TimelineData(tweens, times, values);
+	}
+
+	private function parseColorTimeline(): Array<TimelineData>
+	{
+		var timelines = new Array<TimelineData>();
+
+		var oldEnd: Int = endIndex;
+		var times = new Array<Float>();
+		var rValues = new Array<Float>();
+		var gValues = new Array<Float>();
+		var bValues = new Array<Float>();
+		var aValues = new Array<Float>();
+		var tweens = new Array<TweenData>();
+
+		while (startIndex < endIndex)
+		{
+			if (!findObject("{", "}"))
+			{
+				break;
+			}
+
+			parseKeyframe(times, rValues, gValues, bValues, aValues, tweens);
+
+			startIndex = endIndex;
+			endIndex = oldEnd;
+		}
+
+		tweens.pop();
+
+		if (tweens.length > 0)
+		{
+			timelines.push(new TimelineData(tweens, times, rValues));
+			timelines.push(new TimelineData(tweens, times, gValues));
+			timelines.push(new TimelineData(tweens, times, bValues));
+			timelines.push(new TimelineData(tweens, times, aValues));
+		}
+		else
+		{
+			timelines.push(null);
+			timelines.push(null);
+			timelines.push(null);
+			timelines.push(null);
+		}
+
+		return timelines;
 	}
 
 	private function parseVec2Timeline(): Array<TimelineData>
@@ -155,7 +202,7 @@ class SpineJSONParser
 				break;
 			}
 
-			parseKeyframe(times, xValues, yValues, tweens);
+			parseKeyframe(times, xValues, yValues, null, null, tweens);
 
 			startIndex = endIndex;
 			endIndex = oldEnd;
@@ -177,7 +224,7 @@ class SpineJSONParser
 		return timelines;
 	}
 
-	private function parseKeyframe(times: Array<Float>, values0: Array<Float>, values1: Array<Float>, tweens: Array<TweenData>): Void
+	private function parseKeyframe(times: Array<Float>, values0: Array<Float>, values1: Array<Float>, values2: Array<Float>, values3: Array<Float>, tweens: Array<TweenData>): Void
 	{
 		var name: String = findNextString();
 		var tweenEncountered = false;
@@ -190,7 +237,11 @@ class SpineJSONParser
 				case "angle":
 					values0.push(parseFloat());
 				case "color":
-					values0.push(parseAlpha());
+					var values: Array<Float> = parseColor();
+					values0.push(values[0]);
+					values1.push(values[1]);
+					values2.push(values[2]);
+					values3.push(values[3]);
 				case "x":
 					values0.push(parseFloat());
 				case "y":
@@ -234,12 +285,18 @@ class SpineJSONParser
 		return tween;
 	}
 
-	private function parseAlpha(): Float
+	private function parseColor(): Array<Float>
 	{
-		var rgba: String = findNextString();
-		var value: Int = charCodeToInt(rgba.charCodeAt(6)) * 16 + charCodeToInt(rgba.charCodeAt(7));
+		var rgba = new Array<Float>();
 
-		return value / 255.0;
+		var color: String = findNextString();
+		for (i in 0...4)
+		{
+			var value: Int = charCodeToInt(color.charCodeAt(i * 2)) * 16 + charCodeToInt(color.charCodeAt(i * 2 + 1));
+			rgba[i] = value / 255.0;
+		}
+
+		return rgba;
 	}
 
 	private function charCodeToInt(code: Int): Int

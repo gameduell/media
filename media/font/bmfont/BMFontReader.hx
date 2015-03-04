@@ -261,13 +261,25 @@ class BMFontReader
                 case "count":
                     var numberOfKernings: Int = Std.parseInt(data);
                     numberOfKernings = M.nextPow2(numberOfKernings);
-                    currentFont.kerningsMap = new IntIntHashTable(numberOfKernings, numberOfKernings, false, numberOfKernings);
+                    if (numberOfKernings >= 2)
+                    {
+                        currentFont.kerningsMap = new IntIntHashTable(numberOfKernings, numberOfKernings, false, numberOfKernings);
+                    }
+                    else
+                    {
+                        /// invalid kerning spec, ignoring it
+                    }
             }
         }
     }
 
     static private function readKerningStr(str: String): Void
     {
+        if (currentFont.kerningsMap == null)
+        {
+            return; /// invalid kerning spec, ignoring it
+        }
+
         var tokens = str.split(" ");
         tokens.reverse();
 
