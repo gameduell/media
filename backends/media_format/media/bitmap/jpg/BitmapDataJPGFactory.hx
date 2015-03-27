@@ -34,6 +34,6 @@ class BitmapDataJPGFactory
 
         var data = bytes.getTypesData();
 
-        return new BitmapData(data, width, height, BitmapComponentFormat.BGRA8888, ImageFormat.ImageFormatJPG);
+        return new BitmapData(data, width, height, BitmapComponentFormat.ARGB8888, ImageFormat.ImageFormatJPG, false, false);
     }
 }

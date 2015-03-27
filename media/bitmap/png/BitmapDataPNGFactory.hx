@@ -4,5 +4,5 @@ import types.InputStream;
 
 extern class BitmapDataPNGFactory
 {
-	public static decodeStream(input : InputStream) : BitmapData;
+	static public function decodeStream(input: InputStream): BitmapData;
 }

@@ -1,2 +1,4 @@
 .idea/
 *.iml
+backends/media_ios/ndll
+backends/media_ios/project/obj

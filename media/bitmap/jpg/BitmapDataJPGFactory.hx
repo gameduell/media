@@ -5,7 +5,8 @@
  */
 package media.bitmap.jpg;
 import types.InputStream;
+
 extern class BitmapDataJPGFactory
 {
-   public static function decodeStream(input : InputStream) : BitmapData;
+    static public function decodeStream(input: InputStream): BitmapData;
 }

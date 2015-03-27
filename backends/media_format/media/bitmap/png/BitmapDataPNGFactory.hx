@@ -2,10 +2,6 @@ package media.bitmap.png;
 
 import media.bitmap.BitmapData;
 
-import haxe.io.BytesInput;
-
-import types.DataOutputStream;
-
 import format.png.Tools;
 import format.png.Reader;
 
@@ -14,7 +10,6 @@ import haxe.io.Bytes;
 import types.Data;
 import types.InputStream;
 import types.haxeinterop.HaxeInputInteropStream;
-import types.haxeinterop.HaxeOutputInteropStream;
 using types.haxeinterop.DataBytesTools;
 
 @:access(media.bitmap.BitmapData)
@@ -33,7 +28,7 @@ class BitmapDataPNGFactory
 
                 var data = bytes.getTypesData();
 
-                return new BitmapData(data, header.width, header.height, BitmapComponentFormat.BGRA8888, ImageFormatPNG);
+                return new BitmapData(data, header.width, header.height, BitmapComponentFormat.ARGB8888, ImageFormatPNG, true, true);
 
             default:
                 throw "Unsupported PNG, only RGB(A) is currently supported";
