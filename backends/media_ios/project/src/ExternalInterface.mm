@@ -12,10 +12,11 @@
 
 #include "BitmapLoaderIOS.h"
 
-static value media_ios_loadBitmap(value fileUrl, value nativeData)
+static value media_ios_loadBitmap(value imageData, value nativeData)
 {
-    NativeData* ptr = ((NativeData*)val_data(nativeData));
-	return [BitmapLoaderIOS loadBitmap:fileUrl outData:ptr];
+    NativeData* ptrIn = ((NativeData*)val_data(imageData));
+    NativeData* ptrOut = ((NativeData*)val_data(nativeData));
+	return [BitmapLoaderIOS loadBitmap:ptrIn outData:ptrOut];
 }
 DEFINE_PRIM (media_ios_loadBitmap, 2);
 

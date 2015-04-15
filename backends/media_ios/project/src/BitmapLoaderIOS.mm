@@ -5,11 +5,6 @@
 
 #import "BitmapLoaderIOS.h"
 
-static NSURL* hxstring_to_nsurl(value str)
-{
-	return [NSURL URLWithString:[NSString stringWithUTF8String:val_string(str)]];
-}
-
 @interface BitmapLoaderIOS ()
 {
 }
@@ -18,7 +13,7 @@ static NSURL* hxstring_to_nsurl(value str)
 
 @implementation BitmapLoaderIOS
 
-+ (value) loadBitmap:(value)fileUrl outData:(NativeData*)outData
++ (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData
 {
     _hasAlpha = false;
     _hasPremultipliedAlpha = false;
@@ -28,13 +23,14 @@ static NSURL* hxstring_to_nsurl(value str)
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-    NSURL* url = hxstring_to_nsurl(fileUrl);
-    UIImage *uiImage = [[UIImage alloc] initWithContentsOfFile:[url path]];
+    NSData *uiImageData = [[NSData alloc] initWithBytesNoCopy:imageData->ptr length: imageData->allocedLength freeWhenDone: NO];
+    UIImage *uiImage = [[UIImage alloc] initWithData:uiImageData];
 
     if (!uiImage)
     {
        NSLog(@"BitmapLoaderIOS: The supplied UIImage was null.");
        [uiImage release];
+       [uiImageData release];
        [pool drain];
        return alloc_bool(false);
     }
@@ -161,6 +157,7 @@ static NSURL* hxstring_to_nsurl(value str)
     outData->setupWithExistingPointer((uint8_t*)data, byteCount);
 
     [uiImage release];
+    [uiImageData release];
     [pool drain];
 
     return alloc_bool(true);

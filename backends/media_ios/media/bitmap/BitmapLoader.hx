@@ -15,19 +15,17 @@ class BitmapLoader
     static private var media_ios_hasPremultipliedAlpha = Lib.load ("media_ios", "media_ios_hasPremultipliedAlpha", 0);
     static private var media_ios_getPixelFormat = Lib.load ("media_ios", "media_ios_getPixelFormat", 0);
 
-    static public function bitmapForFileUrl(fileUrl: String): BitmapData
+    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat): BitmapData
     {
         var resultData: Data = new Data(0);
 
-        var result: Bool = media_ios_loadBitmap(fileUrl, resultData.nativeData);
+        var result: Bool = media_ios_loadBitmap(data.nativeData, resultData.nativeData);
 
         if (!result)
         {
             resultData = null;
             return null;
         }
-
-        var fileExtension: String = fileUrl.split(".").pop().toLowerCase();
 
         var width: Int = media_ios_getWidth();
         var height: Int = media_ios_getHeight();
@@ -36,7 +34,6 @@ class BitmapLoader
         var pixelFormat: Int = media_ios_getPixelFormat();
 
         var bitmapComponentFormat: BitmapComponentFormat = bitmapComponentFormatFromPixelFormat(pixelFormat);
-        var imageFormat: ImageFormat = imageFormatFromFileExtension(fileExtension);
 
         return new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
     }
@@ -49,16 +46,6 @@ class BitmapLoader
             case 1: return BitmapComponentFormat.RGB565;
             case 2: return BitmapComponentFormat.A8;
             default: return BitmapComponentFormat.ARGB8888;
-        }
-    }
-
-    static private function imageFormatFromFileExtension(fileExtension: String): ImageFormat
-    {
-        switch(fileExtension)
-        {
-            case "png": return ImageFormat.ImageFormatPNG;
-            case "jpg": return ImageFormat.ImageFormatJPG;
-            default: return ImageFormat.ImageFormatOther;
         }
     }
 }

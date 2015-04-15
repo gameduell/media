@@ -20,7 +20,7 @@ static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
 
 @interface BitmapLoaderIOS : NSObject
 
-+ (value) loadBitmap:(value)fileUrl outData:(NativeData*)outData;
++ (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData;
 
 + (value) getWidth;
 + (value) getHeight;
