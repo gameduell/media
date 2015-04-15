@@ -42,10 +42,10 @@ class BitmapLoader
     {
         switch pixelFormat
         {
-            case 0: return BitmapComponentFormat.ARGB8888;
-            case 1: return BitmapComponentFormat.RGB565;
+            case 0: return BitmapComponentFormat.BGRA8888;
+            case 1: return BitmapComponentFormat.BGR565;
             case 2: return BitmapComponentFormat.A8;
-            default: return BitmapComponentFormat.ARGB8888;
+            default: return BitmapComponentFormat.BGRA8888;
         }
     }
 }

@@ -31,7 +31,7 @@ class BitmapDataPNGFactory
                 var bytes: Bytes = Tools.extract32(png);
                 var data = bytes.getTypesData();
 
-                return new BitmapData(data, header.width, header.height, BitmapComponentFormat.ARGB8888, ImageFormatPNG, true, true);
+                return new BitmapData(data, header.width, header.height, BitmapComponentFormat.BGRA8888, ImageFormat.ImageFormatPNG, true, true);
 
             default:
                 throw "Unsupported PNG, only RGB(A) is currently supported";

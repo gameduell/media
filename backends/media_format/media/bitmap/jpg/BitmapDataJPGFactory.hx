@@ -8,14 +8,16 @@ package media.bitmap.jpg;
 import media.bitmap.BitmapData;
 
 import haxe.io.Bytes;
+import jpg.Reader;
 
 import types.Data;
 import types.InputStream;
 import types.haxeinterop.HaxeInputInteropStream;
-import hxd.res.NanoJpeg;
 
 using types.haxeinterop.DataBytesTools;
+using haxe.io.Bytes;
 
+@:access(haxe.io.Bytes)
 @:access(media.bitmap.BitmapData)
 class BitmapDataJPGFactory
 {
@@ -31,15 +33,18 @@ class BitmapDataJPGFactory
 
     public static function decodeData(imageData: Data): BitmapData
     {
-        var decodedJpeg = NanoJpeg.decode(imageData.getBytes());
+        var haxeBytes: haxe.io.Bytes = imageData.getBytes();
 
-        var bytes: Bytes = decodedJpeg.pixels;
-        var width  = decodedJpeg.width;
-        var height = decodedJpeg.height;
+        var jpgReader: jpg.Reader = new jpg.Reader(haxeBytes);
+        jpgReader.parse();
 
-        var data = bytes.getTypesData();
+        var width: Int = jpgReader.width;
+        var height: Int = jpgReader.height;
 
-        return new BitmapData(data, width, height, BitmapComponentFormat.ARGB8888, ImageFormat.ImageFormatJPG, false, false);
+        var bgraData: haxe.io.Bytes = jpgReader.getData(width, height, true, true);
+        var bitmapData = bgraData.getTypesData();
+
+        return new BitmapData(bitmapData, width, height, BitmapComponentFormat.BGRA8888, ImageFormat.ImageFormatJPG, false, false);
     }
 
 }

@@ -11,6 +11,7 @@ enum BitmapComponentFormat
     BGRA8888;
     RGBA8888;
     ARGB8888;
+    BGR565;
     RGB565;
     A8;
 }
