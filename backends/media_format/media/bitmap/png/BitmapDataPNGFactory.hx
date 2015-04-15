@@ -15,7 +15,7 @@ using types.haxeinterop.DataBytesTools;
 @:access(media.bitmap.BitmapData)
 class BitmapDataPNGFactory
 {
-    public static function decodeStream(input : InputStream) : BitmapData
+    static public function decodeStream(input : InputStream) : BitmapData
     {
         var haxeInput = new HaxeInputInteropStream(input);
 

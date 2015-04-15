@@ -21,8 +21,8 @@ using haxe.io.Bytes;
 @:access(media.bitmap.BitmapData)
 class BitmapDataJPGFactory
 {
-   public static function decodeStream(input : InputStream): BitmapData
-   {
+    static public function decodeStream(input : InputStream): BitmapData
+    {
         var haxeInput = new HaxeInputInteropStream(input);
 
         var jpgData = new Data(input.bytesAvailable);
@@ -31,7 +31,7 @@ class BitmapDataJPGFactory
        return decodeData(jpgData);
     }
 
-    public static function decodeData(imageData: Data): BitmapData
+    static public function decodeData(imageData: Data): BitmapData
     {
         var haxeBytes: haxe.io.Bytes = imageData.getBytes();
 
