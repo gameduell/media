@@ -18,14 +18,17 @@ class BitmapDataPNGFactory
     public static function decodeStream(input : InputStream) : BitmapData
     {
         var haxeInput = new HaxeInputInteropStream(input);
-        var png = new Reader(haxeInput).read();
+
+        var reader = new Reader(haxeInput);
+        reader.checkCRC = false;
+
+        var png = reader.read();
         var header = Tools.getHeader(png);
         switch(header.color)
         {
             case ColTrue(alpha):
 
-                var bytes: Bytes = Tools.extract32(png); // TODO Maybe we find a faster way to deliver this data
-
+                var bytes: Bytes = Tools.extract32(png);
                 var data = bytes.getTypesData();
 
                 return new BitmapData(data, header.width, header.height, BitmapComponentFormat.ARGB8888, ImageFormatPNG, true, true);

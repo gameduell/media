@@ -26,7 +26,12 @@ class BitmapDataJPGFactory
         var jpgData = new Data(input.bytesAvailable);
         input.readIntoData(jpgData);
 
-		var decodedJpeg = NanoJpeg.decode(jpgData.getBytes());
+       return decodeData(jpgData);
+    }
+
+    public static function decodeData(imageData: Data): BitmapData
+    {
+        var decodedJpeg = NanoJpeg.decode(imageData.getBytes());
 
         var bytes: Bytes = decodedJpeg.pixels;
         var width  = decodedJpeg.width;
@@ -36,4 +41,5 @@ class BitmapDataJPGFactory
 
         return new BitmapData(data, width, height, BitmapComponentFormat.ARGB8888, ImageFormat.ImageFormatJPG, false, false);
     }
+
 }
