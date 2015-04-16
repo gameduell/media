@@ -56,7 +56,6 @@
 
 package jpg;
 
-import Type.ValueType;
 import haxe.ds.Vector;
 import jpg.Data.Jfif;
 import jpg.Data.Adobe;
@@ -784,7 +783,7 @@ class Reader
             {
                 var index: Int = readBit();
 
-                if (Type.typeof(node[index]) == ValueType.TInt)
+                if (Std.is(node[index], UInt))
                 {
                     return node[index];
                 }
