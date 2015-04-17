@@ -21,17 +21,14 @@
     _height = 0;
     _pixelFormat = 0;
 
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
     NSData *uiImageData = [[NSData alloc] initWithBytesNoCopy:imageData->ptr length: imageData->allocedLength freeWhenDone: NO];
     UIImage *uiImage = [[UIImage alloc] initWithData:uiImageData];
 
     if (!uiImage)
     {
        NSLog(@"BitmapLoaderIOS: The supplied UIImage was null.");
-       [uiImage release];
-       [uiImageData release];
-       [pool drain];
+       uiImage = nil;
+       uiImageData = nil;
        return alloc_bool(false);
     }
 
@@ -154,11 +151,12 @@
 
     CGContextRelease(context);
 
-    outData->setupWithExistingPointer((uint8_t*)data, byteCount);
+    outData->ptr = (uint8_t*)data;
+    outData->allocedLength = byteCount;
+    outData->offsetLength = byteCount;
 
-    [uiImage release];
-    [uiImageData release];
-    [pool drain];
+    uiImage = nil;
+    uiImageData = nil;
 
     return alloc_bool(true);
 }
