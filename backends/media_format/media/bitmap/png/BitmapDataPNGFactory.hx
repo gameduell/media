@@ -1,5 +1,6 @@
 package media.bitmap.png;
 
+import haxe.io.BytesData;
 import media.bitmap.BitmapData;
 
 import format.png.Tools;
@@ -13,6 +14,7 @@ import types.haxeinterop.HaxeInputInteropStream;
 using types.haxeinterop.DataBytesTools;
 
 @:access(media.bitmap.BitmapData)
+@:access(haxe.io.Bytes)
 class BitmapDataPNGFactory
 {
     static public function decodeStream(input : InputStream) : BitmapData
@@ -28,7 +30,13 @@ class BitmapDataPNGFactory
         {
             case ColTrue(alpha):
 
-                var bytes: Bytes = Tools.extract32(png);
+                #if html5
+                var data: haxe.io.Bytes = new haxe.io.Bytes(header.width * header.height * 4, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
+                #else
+                var data: haxe.io.Bytes = haxe.io.Bytes.alloc(header.width * header.height * 4);
+                #end
+
+                var bytes: Bytes = Tools.extract32(png, data);
                 var data = bytes.getTypesData();
 
                 return new BitmapData(data, header.width, header.height, BitmapComponentFormat.BGRA8888, ImageFormat.ImageFormatPNG, true, true);

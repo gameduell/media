@@ -56,6 +56,7 @@
 
 package jpg;
 
+import haxe.io.BytesData;
 import haxe.ds.Vector;
 import jpg.Data.Jfif;
 import jpg.Data.Adobe;
@@ -165,7 +166,11 @@ class Reader
         var numComponents = this.components.length;
         var stride: Int = numComponents == 4 ? numComponents : numComponents + 1;
         var dataLength = width * height * stride;
-        var data: haxe.io.Bytes = haxe.io.Bytes.alloc(dataLength);  // Uint8Array(dataLength);
+        #if html5
+        var data: haxe.io.Bytes = new haxe.io.Bytes(dataLength, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
+        #else
+        var data: haxe.io.Bytes = haxe.io.Bytes.alloc(dataLength);
+        #end
         var xScaleBlockOffset: Vector<Int> = new Vector(width);
         var mask3LSB = 0xfffffff8; // used to clear the 3 LSBs
 
@@ -568,7 +573,12 @@ class Reader
 
             var subLength: Int = length - 2;
 
-            var subArray: haxe.io.Bytes = haxe.io.Bytes.alloc(subLength);
+            #if html5
+                var subArray: haxe.io.Bytes = new haxe.io.Bytes(subLength, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
+            #else
+                var subArray: haxe.io.Bytes = haxe.io.Bytes.alloc(subLength);
+            #end
+
             var subArrayIndex: Int = 0;
 
             for (i in offset...offset + subLength)
