@@ -5,7 +5,7 @@ import types.DataInputStream;
 import media.bitmap.png.BitmapDataPNGFactory;
 import types.Data;
 
-#if ios
+#if (ios || android)
 extern class BitmapLoader
 {
     static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat): BitmapData;

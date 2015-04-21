@@ -1,0 +1,28 @@
+<xml>
+
+	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
+	
+	<files id="src">
+
+        <include name="${haxelib:types}/backends/types_cpp/native.xml" />
+
+		<compilerflag value="-Iinclude"/>
+		<file name="src/ExternalInterface.cpp"/>
+		<file name="src/lodepng.c"/>
+
+	</files>
+	
+	<target id="NDLL" output="${LIBPREFIX}media_cpp${DBG}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+		
+		<outdir name="../ndll/${BINDIR}"/>
+		<files id="src"/>
+
+	</target>
+	
+	<target id="default">
+		
+		<target id="NDLL"/>
+		
+	</target>
+	
+</xml>
