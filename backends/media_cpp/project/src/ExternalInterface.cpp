@@ -5,18 +5,16 @@
 #include <hx/CFFI.h>
 #include <types/NativeData.h>
 
-#include "lodepng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-
 static bool _hasAlpha;
 static bool _hasPremultipliedAlpha;
 static unsigned int _width;
 static unsigned int _height;
 static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
 
-static value media_cpp_loadBitmap(value imageData, value nativeData)
+#include "lodepng.h"
+
+
+static value media_cpp_loadBitmap (value imageData, value nativeData)
 {
     NativeData* ptrIn = ((NativeData*)val_data(imageData));
     NativeData* ptrOut = ((NativeData*)val_data(nativeData));

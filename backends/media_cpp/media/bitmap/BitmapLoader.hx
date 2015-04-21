@@ -8,8 +8,7 @@ import media.bitmap.BitmapData;
 class BitmapLoader
 {
     static private var media_cpp_loadBitmap = Lib.load ("media_cpp", "media_cpp_loadBitmap", 2);
-
-   /static private var media_cpp_getWidth = Lib.load ("media_cpp", "media_cpp_getWidth", 0);
+    static private var media_cpp_getWidth = Lib.load ("media_cpp", "media_cpp_getWidth", 0);
     static private var media_cpp_getHeight = Lib.load ("media_cpp", "media_cpp_getHeight", 0);
     static private var media_cpp_hasAlpha = Lib.load ("media_cpp", "media_cpp_hasAlpha", 0);
     static private var media_cpp_hasPremultipliedAlpha = Lib.load ("media_cpp", "media_cpp_hasPremultipliedAlpha", 0);
