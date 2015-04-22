@@ -31,7 +31,7 @@ class BitmapDataJPGFactory
        return decodeData(jpgData);
     }
 
-    static public function decodeData(imageData: Data): BitmapData
+    static public function decodeData(imageData: Data, flipRGB: Bool = true): BitmapData
     {
         var haxeBytes: haxe.io.Bytes = imageData.getBytes();
 
@@ -41,10 +41,10 @@ class BitmapDataJPGFactory
         var width: Int = jpgReader.width;
         var height: Int = jpgReader.height;
 
-        var bgraData: haxe.io.Bytes = jpgReader.getData(width, height, true, true);
+        var bgraData: haxe.io.Bytes = jpgReader.getData(width, height, true, flipRGB);
         var bitmapData = bgraData.getTypesData();
 
-        return new BitmapData(bitmapData, width, height, BitmapComponentFormat.BGRA8888, ImageFormat.ImageFormatJPG, false, false);
+        return new BitmapData(bitmapData, width, height, flipRGB ? BitmapComponentFormat.BGRA8888 : BitmapComponentFormat.RGBA8888, ImageFormat.ImageFormatJPG, false, false);
     }
 
 }

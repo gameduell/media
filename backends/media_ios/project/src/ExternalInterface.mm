@@ -12,13 +12,14 @@
 
 #include "BitmapLoaderIOS.h"
 
-static value media_ios_loadBitmap(value imageData, value nativeData)
+static value media_ios_loadBitmapGeneric(value imageData, value nativeData, value flipRGB)
 {
     NativeData* ptrIn = ((NativeData*)val_data(imageData));
     NativeData* ptrOut = ((NativeData*)val_data(nativeData));
-	return [BitmapLoaderIOS loadBitmap:ptrIn outData:ptrOut];
+    bool flip = val_bool(flipRGB);
+	return [BitmapLoaderIOS loadBitmap:ptrIn outData:ptrOut flipRGB:flip];
 }
-DEFINE_PRIM (media_ios_loadBitmap, 2);
+DEFINE_PRIM (media_ios_loadBitmapGeneric, 3);
 
 
 static value media_ios_getWidth()

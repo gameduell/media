@@ -9,6 +9,7 @@
 		<compilerflag value="-Iinclude"/>
 		<file name="src/ExternalInterface.cpp"/>
 		<file name="src/lodepng.cpp"/>
+		<file name="src/jpgd.cpp"/>
 
 	</files>
 	

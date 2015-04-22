@@ -13,7 +13,7 @@
 
 @implementation BitmapLoaderIOS
 
-+ (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData
++ (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB
 {
     _hasAlpha = false;
     _hasPremultipliedAlpha = false;
@@ -76,51 +76,105 @@
     GLvoid* data = nil;
     int byteCount = 0;
 
-    switch(_pixelFormat)
+    if (flipRGB)
     {
-        case 0: // RGBA8888
-            colorSpace = CGColorSpaceCreateDeviceRGB();
-            byteCount = _width * _height * 4;
-            data = malloc(byteCount);
-            context = CGBitmapContextCreate(data,
-                                            _width,
-                                            _height,
-                                            8,
-                                            4 * _width,
-                                            colorSpace,
-                                            kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
+        switch(_pixelFormat)
+            {
+                case 0: // RGBA8888
+                    colorSpace = CGColorSpaceCreateDeviceRGB();
+                    byteCount = _width * _height * 4;
+                    data = malloc(byteCount);
+                    context = CGBitmapContextCreate(data,
+                                                    _width,
+                                                    _height,
+                                                    8,
+                                                    4 * _width,
+                                                    colorSpace,
+                                                    kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
 
-            CGColorSpaceRelease(colorSpace);
-            break;
+                    CGColorSpaceRelease(colorSpace);
+                    break;
 
-        case 1: // RGB565
-            colorSpace = CGColorSpaceCreateDeviceRGB();
-            byteCount = _width * _height * 4;
-            data = malloc(byteCount);
-            context = CGBitmapContextCreate(data,
-                                            _width,
-                                            _height,
-                                            8,
-                                            4 * _width,
-                                            colorSpace,
-                                            kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little);
-            CGColorSpaceRelease(colorSpace);
-            break;
+                case 1: // RGB565
+                    colorSpace = CGColorSpaceCreateDeviceRGB();
+                    byteCount = _width * _height * 4;
+                    data = malloc(byteCount);
+                    context = CGBitmapContextCreate(data,
+                                                    _width,
+                                                    _height,
+                                                    8,
+                                                    4 * _width,
+                                                    colorSpace,
+                                                    kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little);
+                    CGColorSpaceRelease(colorSpace);
+                    break;
 
-        case 2: // A8
-            byteCount = _width * _height;
-            data = malloc(byteCount);
-            context = CGBitmapContextCreate(data,
-                                            _width,
-                                            _height,
-                                            8,
-                                            _width,
-                                            NULL,
-                                            kCGImageAlphaOnly | kCGBitmapAlphaInfoMask);
-            break;
-        default:
-            [NSException raise:NSInternalInconsistencyException format:@"Invalid pixel format"];
+                case 2: // A8
+                    byteCount = _width * _height;
+                    data = malloc(byteCount);
+                    context = CGBitmapContextCreate(data,
+                                                    _width,
+                                                    _height,
+                                                    8,
+                                                    _width,
+                                                    NULL,
+                                                    kCGImageAlphaOnly | kCGBitmapAlphaInfoMask);
+                    break;
+                default:
+                    [NSException raise:NSInternalInconsistencyException format:@"Invalid pixel format"];
+            }
     }
+    else
+    {
+        switch(_pixelFormat)
+        {
+            case 0: // RGBA8888
+                colorSpace = CGColorSpaceCreateDeviceRGB();
+                byteCount = _width * _height * 4;
+                data = malloc(byteCount);
+                context = CGBitmapContextCreate(data,
+                                                _width,
+                                                _height,
+                                                8,
+                                                4 * _width,
+                                                colorSpace,
+                                                kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+
+                CGColorSpaceRelease(colorSpace);
+                break;
+
+            case 1: // RGB565
+                colorSpace = CGColorSpaceCreateDeviceRGB();
+                byteCount = _width * _height * 4;
+                data = malloc(byteCount);
+                context = CGBitmapContextCreate(data,
+                                                _width,
+                                                _height,
+                                                8,
+                                                4 * _width,
+                                                colorSpace,
+                                                kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Big);
+                CGColorSpaceRelease(colorSpace);
+                break;
+
+            case 2: // A8
+                byteCount = _width * _height;
+                data = malloc(byteCount);
+                context = CGBitmapContextCreate(data,
+                                                _width,
+                                                _height,
+                                                8,
+                                                _width,
+                                                NULL,
+                                                kCGImageAlphaOnly | kCGBitmapAlphaInfoMask);
+                break;
+            default:
+                [NSException raise:NSInternalInconsistencyException format:@"Invalid pixel format"];
+        }
+    }
+
+
+
 
     // Now we have the pixelformat info we need we clear the context we have just created and into which the
     // image will be rendered

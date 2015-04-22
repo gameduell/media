@@ -10,5 +10,5 @@ import types.InputStream;
 extern class BitmapDataJPGFactory
 {
     static public function decodeStream(input: InputStream): BitmapData;
-    static public function decodeData(imageData: Data): BitmapData;
+    static public function decodeData(imageData: Data, flipRGB: Bool = true): BitmapData;
 }
