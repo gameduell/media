@@ -15,6 +15,7 @@ class BitmapLoader
     static private var media_ios_hasAlpha = Lib.load ("media_ios", "media_ios_hasAlpha", 0);
     static private var media_ios_hasPremultipliedAlpha = Lib.load ("media_ios", "media_ios_hasPremultipliedAlpha", 0);
     static private var media_ios_getPixelFormat = Lib.load ("media_ios", "media_ios_getPixelFormat", 0);
+    static private var media_ios_getErrorString = Lib.load ("media_ios", "media_ios_getErrorString", 0);
 
     static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true): BitmapData
     {
@@ -24,6 +25,7 @@ class BitmapLoader
 
         if (!result)
         {
+            trace("Error: " + media_ios_getErrorString());
             resultData = null;
             return null;
         }

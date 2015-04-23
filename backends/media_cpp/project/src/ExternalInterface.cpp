@@ -13,6 +13,7 @@ static bool _hasPremultipliedAlpha;
 static unsigned int _width;
 static unsigned int _height;
 static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
+static const char* _errorMessage;
 
 static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, value flipRGB)
 {
@@ -37,10 +38,11 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
 
     error = lodepng_decode(&image, &width, &height, &state, png, pngsize);
 
+    _errorMessage = lodepng_error_text(error);
+
     if(error)
     {
         lodepng_state_cleanup(&state);
-        printf("error %u: %s\n", error, lodepng_error_text(error));
         return alloc_bool(false);
     }
 
@@ -123,7 +125,12 @@ static value media_cpp_loadBitmapFromJpg (value imageData, value nativeData, val
 
     if (image == NULL)
     {
+        _errorMessage = "Failed decoding source image to jpg.";
         return alloc_bool(false);
+    }
+    else
+    {
+        _errorMessage = "noerror";
     }
 
     _width = width;
@@ -135,15 +142,12 @@ static value media_cpp_loadBitmapFromJpg (value imageData, value nativeData, val
 
     if (flip)
     {
-        unsigned char stride = 4;
-        unsigned char r,b;
-
         for(unsigned int i = 0; i != _width * _height; ++i)
         {
-            r = image[i * stride + 0];
-            b = image[i * stride + 2];
-            image[i * stride + 0] = b;
-            image[i * stride + 2] = r;
+            unsigned char r = image[i * 4 + 0];
+            unsigned char b = image[i * 4 + 2];
+            image[i * 4 + 0] = b;
+            image[i * 4 + 2] = r;
         }
     }
 
@@ -201,6 +205,12 @@ static value media_cpp_getPixelFormat()
     return alloc_int(_pixelFormat);
 }
 DEFINE_PRIM (media_cpp_getPixelFormat, 0);
+
+static value media_cpp_getErrorString()
+{
+    return alloc_string(_errorMessage);
+}
+DEFINE_PRIM (media_cpp_getErrorString, 0);
 
 
 /// OTHER

@@ -15,6 +15,7 @@ class BitmapLoader
     static private var media_cpp_hasAlpha = Lib.load ("media_cpp", "media_cpp_hasAlpha", 0);
     static private var media_cpp_hasPremultipliedAlpha = Lib.load ("media_cpp", "media_cpp_hasPremultipliedAlpha", 0);
     static private var media_cpp_getPixelFormat = Lib.load ("media_cpp", "media_cpp_getPixelFormat", 0);
+    static private var media_cpp_getErrorString = Lib.load ("media_cpp", "media_cpp_getErrorString", 0);
 
     static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true): BitmapData
     {
@@ -31,6 +32,7 @@ class BitmapLoader
 
         if (!result)
         {
+            trace("Error: " + media_cpp_getErrorString());
             resultData = null;
             return null;
         }

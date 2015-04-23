@@ -26,10 +26,14 @@
 
     if (!uiImage)
     {
-       NSLog(@"BitmapLoaderIOS: The supplied UIImage was null.");
+       _errorMessage = "BitmapLoaderIOS: The supplied UIImage was null.";
        uiImage = nil;
        uiImageData = nil;
        return alloc_bool(false);
+    }
+    else
+    {
+        _errorMessage = "No error";
     }
 
     // Get Core Graphics image reference
@@ -238,6 +242,11 @@
 + (value) getPixelFormat
 {
     return alloc_int(_pixelFormat);
+}
+
++ (value) getErrorMessage
+{
+    return alloc_string(_errorMessage);
 }
 
 @end

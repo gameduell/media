@@ -61,6 +61,11 @@ static value media_ios_getPixelFormat()
 }
 DEFINE_PRIM (media_ios_getPixelFormat, 0);
 
+static value media_ios_getErrorString()
+{
+    return [BitmapLoaderIOS getErrorMessage];
+}
+DEFINE_PRIM (media_ios_getErrorString, 0);
 
 /// OTHER
 extern "C" void media_ios_main ()

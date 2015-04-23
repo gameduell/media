@@ -3,6 +3,7 @@
 
 	<duelllib name="types" version="2.0.0+" />
 
+    <!--Warning: The order of the includes are important to determine which implementations are used-->
     <include path="backends/media_format/duell_library.xml" />
 
     <include path="backends/media_ios/duell_library.xml" if="ios" />

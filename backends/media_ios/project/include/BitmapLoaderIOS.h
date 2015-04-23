@@ -17,6 +17,7 @@ static BOOL _hasPremultipliedAlpha;
 static unsigned int _width;
 static unsigned int _height;
 static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
+static const char* _errorMessage;
 
 @interface BitmapLoaderIOS : NSObject
 
@@ -27,5 +28,6 @@ static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
 + (value) hasAlpha;
 + (value) hasPremultipliedAlpha;
 + (value) getPixelFormat;
++ (value) getErrorMessage;
 
 @end
