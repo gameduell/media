@@ -56,7 +56,7 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
     if (lodepng_is_alpha_type(&color))
     {
         _hasAlpha = true;
-        _hasPremultipliedAlpha = false;
+        _hasPremultipliedAlpha = true;
 
         _pixelFormat = 0;
     }
@@ -68,6 +68,26 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
         _pixelFormat = 1;
     }
 
+    // Premultiply alpha
+    if (_hasAlpha)
+    {
+        unsigned char stride = 4;
+        float r,g,b, aFraction;
+
+        for(unsigned int i = 0; i != _width * _height; ++i)
+        {
+            aFraction = (float)image[i * stride + 3] / 255.0f;
+            b = (float)image[i * stride + 2];
+            g = (float)image[i * stride + 1];
+            r = (float)image[i * stride + 0];
+
+            image[i * stride + 0] = (unsigned char)(r * aFraction);
+            image[i * stride + 1] = (unsigned char)(g * aFraction);
+            image[i * stride + 2] = (unsigned char)(b * aFraction);
+        }
+    }
+
+    // Flip RGB
     if (flip && !lodepng_is_greyscale_type(&color) && (_pixelFormat == 1 || _pixelFormat == 0))
     {
         unsigned char stride = 4;
