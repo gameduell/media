@@ -51,11 +51,9 @@
     _hasAlpha = ((info == kCGImageAlphaPremultipliedLast) ||
                  (info == kCGImageAlphaPremultipliedFirst) ||
                  (info == kCGImageAlphaLast) ||
-                 (info == kCGImageAlphaFirst) ? YES : NO);
+                 (info == kCGImageAlphaFirst) ? true : false);
 
-
-    _hasPremultipliedAlpha = ((info == kCGImageAlphaPremultipliedLast) ||
-                              (info == kCGImageAlphaPremultipliedFirst) ? YES : NO);
+    _hasPremultipliedAlpha = true;
 
     // Check to see what pixel format the image is using
 

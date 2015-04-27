@@ -56,7 +56,7 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
     if (lodepng_is_alpha_type(&color))
     {
         _hasAlpha = true;
-        _hasPremultipliedAlpha = true;
+        _hasPremultipliedAlpha = false;
 
         _pixelFormat = 0;
     }
