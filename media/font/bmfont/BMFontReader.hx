@@ -25,9 +25,16 @@ class BMFontReader
     //static var bytes: Bytes;
     static var currentFont: BMFontDef = null;
 
-    public static function readFromString(fileAsString: String): BMFontDef
+    public static function readFromString(fileAsString: String, targetFontDef: BMFontDef = null): BMFontDef
     {
-        currentFont = new BMFontDef();
+        if (targetFontDef == null)
+        {
+            currentFont = new BMFontDef();
+        }
+        else
+        {
+            currentFont = targetFontDef;
+        }
 
         if (Std.is(fileAsString, String))
         {

@@ -52,4 +52,40 @@ class BMFontDef
     {
         return (first << 16) | second;
     }
+
+    public function copy(destination: BMFontDef): Void
+    {
+        destination.name = name;
+        destination.size = size;
+        destination.pageFileNames = pageFileNames;
+
+        destination.smooth = smooth;
+        destination.unicode = unicode;
+        destination.italic = italic;
+        destination.bold = bold;
+        destination.fixedHeight = fixedHeight;
+        destination.charSet = charSet;
+        destination.stretchH = stretchH;
+        destination.aa = aa;
+        destination.paddingUp = paddingUp;
+        destination.paddingRight = paddingRight;
+        destination.paddingDown = paddingDown;
+        destination.paddingLeft = paddingLeft;
+        destination.spacingHorizontal = spacingHorizontal;
+        destination.spacingVertical = spacingVertical;
+        destination.outline = outline;
+        destination.lineHeight = lineHeight;
+        destination.base = base;
+        destination.xHeight = xHeight;
+        destination.texWidth = texWidth;
+        destination.texHeight = texHeight;
+        destination.pageCount = pageCount;
+        destination.alphaChannel = alphaChannel;
+        destination.redChannel = redChannel;
+        destination.greenChannel = greenChannel;
+        destination.blueChannel = blueChannel;
+        destination.charMap = charMap;
+        destination.kerningsMap = kerningsMap;
+        destination.packed = packed;
+    }
 }
