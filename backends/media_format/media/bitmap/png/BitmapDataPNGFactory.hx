@@ -40,6 +40,9 @@ class BitmapDataPNGFactory
         var haxeInput = new HaxeInputInteropStream(new DataInputStream(imageData));
         var reader = new Reader(haxeInput);
 
+        /// improve performance a bit, and doesn't seem to work with all browsers
+        reader.checkCRC = false;
+
         var png = reader.read();
         var header = Tools.getHeader(png);
 
