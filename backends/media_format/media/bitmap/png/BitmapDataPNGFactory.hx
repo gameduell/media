@@ -26,11 +26,7 @@ class BitmapDataPNGFactory
         var png = reader.read();
         var header = Tools.getHeader(png);
 
-#if html5
-        var data: haxe.io.Bytes = new haxe.io.Bytes(header.width * header.height * 4, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
-#else
         var data: haxe.io.Bytes = haxe.io.Bytes.alloc(header.width * header.height * 4);
-#end
 
         var bytes: Bytes = Tools.extractRGBAPremultipliedAlpha(png, data, true);
 
@@ -47,11 +43,7 @@ class BitmapDataPNGFactory
         var png = reader.read();
         var header = Tools.getHeader(png);
 
-#if html5
-        var data: haxe.io.Bytes = new haxe.io.Bytes(header.width * header.height * 4, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
-#else
         var data: haxe.io.Bytes = haxe.io.Bytes.alloc(header.width * header.height * 4);
-#end
 
         var bytes: Bytes = Tools.extractRGBAPremultipliedAlpha(png, data, flipRGB);
 

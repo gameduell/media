@@ -166,11 +166,7 @@ class Reader
         var numComponents = this.components.length;
         var stride: Int = numComponents == 4 ? numComponents : numComponents + 1;
         var dataLength = width * height * stride;
-        #if html5
-        var data: haxe.io.Bytes = new haxe.io.Bytes(dataLength, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
-        #else
         var data: haxe.io.Bytes = haxe.io.Bytes.alloc(dataLength);
-        #end
         var xScaleBlockOffset: Vector<Int> = new Vector(width);
         var mask3LSB = 0xfffffff8; // used to clear the 3 LSBs
 
@@ -243,9 +239,9 @@ class Reader
         {
             while (i < length)
             {
-                y = data.b.fastGet(i) << 8;
-                cb = data.b.fastGet(i + 1) - 128;
-                cr = data.b.fastGet(i + 2) - 128;
+                y = data.get(i) << 8;
+                cb = data.get(i + 1) - 128;
+                cr = data.get(i + 2) - 128;
                 r = clampInt0to255((y + 359 * cr + 128) >> 8);
                 g = clampInt0to255((y -  88 * cb - 183 * cr + 128) >> 8);
                 b = clampInt0to255((y + 454 * cb + 128) >> 8);
@@ -260,9 +256,9 @@ class Reader
         {
             while (i < length)
             {
-                y = data.b.fastGet(i) << 8;
-                cb = data.b.fastGet(i + 1) - 128;
-                cr = data.b.fastGet(i + 2) - 128;
+                y = data.get(i) << 8;
+                cb = data.get(i + 1) - 128;
+                cr = data.get(i + 2) - 128;
                 r = clampInt0to255((y + 359 * cr + 128) >> 8);
                 g = clampInt0to255((y -  88 * cb - 183 * cr + 128) >> 8);
                 b = clampInt0to255((y + 454 * cb + 128) >> 8);
@@ -295,10 +291,10 @@ class Reader
         {
             while (i < length)
             {
-                Y = data.b.fastGet(i);
-                Cb = data.b.fastGet(i + 1);
-                Cr = data.b.fastGet(i + 2);
-                k = data.b.fastGet(i + 3);
+                Y = data.get(i);
+                Cb = data.get(i + 1);
+                Cr = data.get(i + 2);
+                k = data.get(i + 3);
 
                 r = -122.67195406894 +
                 Cb * (-6.60635669420364e-5 * Cb + 0.000437130475926232 * Cr -
@@ -342,10 +338,10 @@ class Reader
         {
             while (i < length)
             {
-                Y = data.b.fastGet(i);
-                Cb = data.b.fastGet(i + 1);
-                Cr = data.b.fastGet(i + 2);
-                k = data.b.fastGet(i + 3);
+                Y = data.get(i);
+                Cb = data.get(i + 1);
+                Cr = data.get(i + 2);
+                k = data.get(i + 3);
 
                 r = -122.67195406894 +
                 Cb * (-6.60635669420364e-5 * Cb + 0.000437130475926232 * Cr -
@@ -402,9 +398,9 @@ class Reader
 
         while (i < length)
         {
-            Y = data.b.fastGet(i);
-            Cb = data.b.fastGet(i + 1);
-            Cr = data.b.fastGet(i + 2);
+            Y = data.get(i);
+            Cb = data.get(i + 1);
+            Cr = data.get(i + 2);
 
             data.set(i, clamp0to255(434.456 - Y - 1.402 * Cr));
             data.set(i + 1, clamp0to255(119.541 - Y + 0.344 * Cb + 0.714 * Cr));
@@ -441,10 +437,10 @@ class Reader
         {
             while (i < length)
             {
-                c = data.b.fastGet(i);
-                m = data.b.fastGet(i + 1);
-                y = data.b.fastGet(i + 2);
-                k = data.b.fastGet(i + 3);
+                c = data.get(i);
+                m = data.get(i + 1);
+                y = data.get(i + 2);
+                k = data.get(i + 3);
 
                 r =
                 c * (-4.387332384609988 * c + 54.48615194189176 * m +
@@ -490,10 +486,10 @@ class Reader
         {
             while (i < length)
             {
-                c = data.b.fastGet(i);
-                m = data.b.fastGet(i + 1);
-                y = data.b.fastGet(i + 2);
-                k = data.b.fastGet(i + 3);
+                c = data.get(i);
+                m = data.get(i + 1);
+                y = data.get(i + 2);
+                k = data.get(i + 3);
 
                 r =
                 c * (-4.387332384609988 * c + 54.48615194189176 * m +
@@ -563,7 +559,7 @@ class Reader
         var huffmanTablesDC:Array<Dynamic> = new Array();
 
         function readUint16(): UInt {
-            var value = (data.b.fastGet(offset) << 8) | data.b.fastGet(offset + 1);
+            var value = (data.get(offset) << 8) | data.get(offset + 1);
             offset += 2;
             return value;
         }
@@ -573,11 +569,7 @@ class Reader
 
             var subLength: Int = length - 2;
 
-            #if html5
-                var subArray: haxe.io.Bytes = new haxe.io.Bytes(subLength, new BytesData()); // This is 2x faster on Chrome, but a little slower on FireFox and Safari
-            #else
-                var subArray: haxe.io.Bytes = haxe.io.Bytes.alloc(subLength);
-            #end
+            var subArray: haxe.io.Bytes = haxe.io.Bytes.alloc(subLength);
 
             var subArrayIndex: Int = 0;
 
@@ -647,30 +639,30 @@ class Reader
                     var appData = readDataBlock();
 
                     if (fileMarker == 0xFFE0) {
-                        if (appData.b.fastGet(0) == 0x4A && appData.b.fastGet(1) == 0x46 &&
-                        appData.b.fastGet(2) == 0x49 && appData.b.fastGet(3) == 0x46 &&
-                        appData.b.fastGet(4) == 0) { // 'JFIF\x00'
+                        if (appData.get(0) == 0x4A && appData.get(1) == 0x46 &&
+                        appData.get(2) == 0x49 && appData.get(3) == 0x46 &&
+                        appData.get(4) == 0) { // 'JFIF\x00'
                             jfif = {
-                            version: { major: appData.b.fastGet(5), minor: appData.b.fastGet(6) },
-                            densityUnits: appData.b.fastGet(7),
-                            xDensity: (appData.b.fastGet(8) << 8) | appData.b.fastGet(9),
-                            yDensity: (appData.b.fastGet(10) << 8) | appData.b.fastGet(11),
-                            thumbWidth: appData.b.fastGet(12),
-                            thumbHeight: appData.b.fastGet(13),
-                            thumbData: appData.sub(14, 3 * appData.b.fastGet(12) * appData.b.fastGet(13))
+                            version: { major: appData.get(5), minor: appData.get(6) },
+                            densityUnits: appData.get(7),
+                            xDensity: (appData.get(8) << 8) | appData.get(9),
+                            yDensity: (appData.get(10) << 8) | appData.get(11),
+                            thumbWidth: appData.get(12),
+                            thumbHeight: appData.get(13),
+                            thumbData: appData.sub(14, 3 * appData.get(12) * appData.get(13))
                             };
                         }
                     }
                     // TODO APP1 - Exif
                     if (fileMarker == 0xFFEE) {
-                        if (appData.b.fastGet(0) == 0x41 && appData.b.fastGet(1) == 0x64 &&
-                        appData.b.fastGet(2) == 0x6F && appData.b.fastGet(3) == 0x62 &&
-                        appData.b.fastGet(4) == 0x65) { // 'Adobe'
+                        if (appData.get(0) == 0x41 && appData.get(1) == 0x64 &&
+                        appData.get(2) == 0x6F && appData.get(3) == 0x62 &&
+                        appData.get(4) == 0x65) { // 'Adobe'
                             adobe = {
-                            version: (appData.b.fastGet(5) << 8) | appData.b.fastGet(6),
-                            flags0: (appData.b.fastGet(7) << 8) | appData.b.fastGet(8),
-                            flags1: (appData.b.fastGet(9) << 8) | appData.b.fastGet(10),
-                            transformCode: appData.b.fastGet(11)
+                            version: (appData.get(5) << 8) | appData.get(6),
+                            flags0: (appData.get(7) << 8) | appData.get(8),
+                            flags1: (appData.get(9) << 8) | appData.get(10),
+                            transformCode: appData.get(11)
                             };
                         }
                     }
@@ -680,12 +672,12 @@ class Reader
                     var quantizationTablesEnd = quantizationTablesLength + offset - 2;
                     var z;
                     while (offset < quantizationTablesEnd) {
-                        var quantizationTableSpec = data.b.fastGet(offset++);
+                        var quantizationTableSpec = data.get(offset++);
                         var tableData: Vector<UInt> = new Vector(64);
                         if ((quantizationTableSpec >> 4) == 0) { // 8 bit values
                             for (j in 0...64) {
                             z = dctZigZag[j];
-                            tableData[z] = data.b.fastGet(offset++);
+                            tableData[z] = data.get(offset++);
                             }
                         } else if ((quantizationTableSpec >> 4) == 1) { //16 bit
                             for (j in 0...64) {
@@ -708,25 +700,25 @@ class Reader
                     frame = {
                         extended: (fileMarker == 0xFFC1),
                         progressive: (fileMarker == 0xFFC2),
-                        precision: data.b.fastGet(offset++),
+                        precision: data.get(offset++),
                         scanLines: readUint16(),
                         samplesPerLine: readUint16(),
                         components: new Array<Component>(),
                         componentIds: new Map<Int, Int>()
                     };
-                    var componentsCount = data.b.fastGet(offset++), componentId;
+                    var componentsCount = data.get(offset++), componentId;
                     var maxH = 0, maxV = 0;
                     for (i in 0...componentsCount) {
-                componentId = data.b.fastGet(offset);
-                var h = data.b.fastGet(offset + 1) >> 4;
-                var v = data.b.fastGet(offset + 1) & 15;
+                componentId = data.get(offset);
+                var h = data.get(offset + 1) >> 4;
+                var v = data.get(offset + 1) & 15;
                 if (maxH < h) {
                 maxH = h;
                 }
                 if (maxV < v) {
                 maxV = v;
                 }
-                var qId = data.b.fastGet(offset + 2);
+                var qId = data.get(offset + 2);
                 l = frame.components.push({
                 h: h,
                 v: v,
@@ -745,17 +737,17 @@ class Reader
 
                     while (i < huffmanLength)
                     {
-                        var huffmanTableSpec = data.b.fastGet(offset++);
+                        var huffmanTableSpec = data.get(offset++);
                         var codeLengths: Vector<UInt> = new Vector(16);
                         var codeLengthSum = 0;
                         for (j in 0...16) {
-                            codeLengths[j] = data.b.fastGet(offset);
+                            codeLengths[j] = data.get(offset);
                             codeLengthSum += codeLengths[j];
                             offset++;
                         }
                         var huffmanValues: Vector<UInt> = new Vector(codeLengthSum);
                         for (j in 0...codeLengthSum) {
-                            huffmanValues[j] = data.b.fastGet(offset);
+                            huffmanValues[j] = data.get(offset);
                             offset++;
                         }
 
@@ -771,23 +763,23 @@ class Reader
 
                 case 0xFFDA: // SOS (Start of Scan)
                     var scanLength = readUint16();
-                    var selectorsCount = data.b.fastGet(offset++);
+                    var selectorsCount = data.get(offset++);
                     var components: Array<Component> = new Array();
                     var component: Component;
 
                     for (i in 0...selectorsCount)
                     {
-                        var componentIndex = frame.componentIds[data.b.fastGet(offset++)];
+                        var componentIndex = frame.componentIds[data.get(offset++)];
                         component = frame.components[componentIndex];
-                        var tableSpec = data.b.fastGet(offset++);
+                        var tableSpec = data.get(offset++);
                         component.huffmanTableDC = huffmanTablesDC[tableSpec >> 4];
                         component.huffmanTableAC = huffmanTablesAC[tableSpec & 15];
                         components.push(component);
                     }
 
-                    var spectralStart = data.b.fastGet(offset++);
-                    var spectralEnd = data.b.fastGet(offset++);
-                    var successiveApproximation = data.b.fastGet(offset++);
+                    var spectralStart = data.get(offset++);
+                    var spectralEnd = data.get(offset++);
+                    var successiveApproximation = data.get(offset++);
                     var processed = decodeScan(data, offset,
                     frame, components, resetInterval,
                     spectralStart, spectralEnd,
@@ -796,12 +788,12 @@ class Reader
                     offset += processed;
 
                 case 0xFFFF: // Fill bytes
-                    if (data.b.fastGet(offset) != 0xFF) { // Avoid skipping a valid marker.
+                    if (data.get(offset) != 0xFF) { // Avoid skipping a valid marker.
                         offset--;
                     }
 
                 default:
-                    if (data.b.fastGet(offset - 3) == 0xFF && data.b.fastGet(offset - 2) >= 0xC0 && data.b.fastGet(offset - 2) <= 0xFE) {
+                    if (data.get(offset - 3) == 0xFF && data.get(offset - 2) >= 0xC0 && data.get(offset - 2) <= 0xFE) {
                         // could be incorrect encoding -- last 0xFF byte of the previous
                         // block was eaten by the encoder
                         offset -= 3;
@@ -908,10 +900,10 @@ class Reader
                 bitsCount--;
                 return (bitsData >> bitsCount) & 1;
             }
-            bitsData = data.b.fastGet(offset++);
+            bitsData = data.get(offset++);
             if (bitsData == 0xFF)
             {
-                var nextByte = data.b.fastGet(offset++);
+                var nextByte = data.get(offset++);
                 if (nextByte != 0) {
                     throw 'unexpected marker: ' +
                     ((bitsData << 8) | nextByte); // TODO Convert to 16 bit int string
@@ -1187,7 +1179,7 @@ class Reader
 
             // find marker
             bitsCount = 0;
-            marker = (data.b.fastGet(offset) << 8) | data.b.fastGet(offset + 1);
+            marker = (data.get(offset) << 8) | data.get(offset + 1);
             if (marker <= 0xFF00) {
                 throw 'marker was not found';
             }
