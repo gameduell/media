@@ -39,6 +39,7 @@ class BMFontReader
         if (Std.is(fileAsString, String))
         {
             var lines = fileAsString.split("\n");
+            /// read content
             while (lines.length > 0)
             {
                 var line = lines.shift();
@@ -90,7 +91,6 @@ class BMFontReader
     */
         return null;
     }
-
     static function readLine(str: String): Void
     {
         var token = str.split(" ").shift();
@@ -115,7 +115,7 @@ class BMFontReader
 
     static private function readInfoStr(str: String): Void
     {
-        var tokens = str.split(" ");
+        var tokens = specialSplit(str, " ");
         tokens.reverse();
         while (tokens.length > 0)
         {
@@ -132,7 +132,7 @@ class BMFontReader
                 case "italic":
                     currentFont.italic= data == "1";
                 case "charset":
-//hm
+                    //hm
                 case "unicode":
                     currentFont.unicode = data == "1";
                 case "stretchH":
@@ -159,7 +159,7 @@ class BMFontReader
 
     static private function readCommonStr(str: String): Void
     {
-        var tokens = str.split(" ");
+        var tokens = specialSplit(str, " ");
         tokens.reverse();
         while (tokens.length > 0)
         {
@@ -187,13 +187,14 @@ class BMFontReader
     static private function readPagesStr(str: String): Void
     {
         currentFont.pageFileNames = [];
-        var tokens = str.split(" ");
+        var tokens = specialSplit(str, " ");
         tokens.reverse();
         while (tokens.length > 0)
         {
             var t = tokens.pop();
             var datum = t.split("=");
             var data = datum[1];
+            trace(data);
             switch(datum[0])
             {
                 case "file":
@@ -316,6 +317,57 @@ class BMFontReader
             }
         }
         currentFont.kerningsMap.set(BMFontDef.kerningKey(firstChar, secondChar), amountKerning);
+    }
+
+    /// Util function for spliting fnt strings and handling quotes
+    private static function specialSplit(s: String, delimiter: String): Array<String>
+    {
+          var results = [];
+
+          if (s.indexOf("\"") >= 0)
+          {
+            var parts:Array<String> = [];
+            var partStart: Int = -1;
+            var partEnd: Int = 0;
+            var quoteStart: Int = 0;
+            var quoteEnd: Int = 0;
+            var hasQuotes: Bool = false;
+            do
+            {
+              quoteStart = s.indexOf("\"", partStart + 1);
+              quoteEnd = s.indexOf("\"", quoteStart + 1);
+
+              partEnd = s.indexOf(delimiter, partStart + 1);
+
+              if (partEnd == -1)
+              {
+                  partEnd = s.length;
+              }
+
+              hasQuotes = quoteStart != -1 && partEnd > quoteStart && partEnd < quoteEnd;
+
+              if (hasQuotes)
+              {
+                  partEnd = s.indexOf(delimiter, quoteEnd + 1);
+              }
+              var substr: String = s.substring(partStart + 1, partEnd);
+              trace(substr);
+              parts.push(substr);
+
+              if (hasQuotes)
+                partStart = partEnd - 1;
+
+              partStart = s.indexOf(delimiter, partStart + 1);
+            } while (partStart != -1);
+
+            results = parts;
+          }
+          else
+          {
+              results = s.split(delimiter);
+          }
+
+          return results;
     }
 
 /// Logic for reading binary fnt files. Maybe we need this for performance.
