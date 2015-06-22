@@ -194,7 +194,7 @@ class BMFontReader
             var t = tokens.pop();
             var datum = t.split("=");
             var data = datum[1];
-            trace(data);
+
             switch(datum[0])
             {
                 case "file":
@@ -351,7 +351,7 @@ class BMFontReader
                   partEnd = s.indexOf(delimiter, quoteEnd + 1);
               }
               var substr: String = s.substring(partStart + 1, partEnd);
-              trace(substr);
+
               parts.push(substr);
 
               if (hasQuotes)
