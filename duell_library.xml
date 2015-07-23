@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<library>
+<library xmlns="duell">
 
 	<duelllib name="types" version="3.0.0+" />
 
@@ -8,5 +8,11 @@
 
     <include path="backends/media_ios/duell_library.xml" if="ios" />
     <include path="backends/media_cpp/duell_library.xml" if="android" />
+
+    <platform-config>
+        <documentation>
+            <documentation-folder library="media" path="documenation" />
+        </documentation>
+    </platform-config>
 
 </library>
