@@ -236,15 +236,23 @@ class Tools {
 		case ColIndexed:
 			var pal = getPalette(d);
 			if( pal == null ) throw "PNG Palette is missing";
-			
+
 			// transparent palette extension
 			var alpha = null;
+
+			/// stop var instead of break because it generates a throw when inside a for
+			var stop = false;
 			for( t in d )
+			{
 				switch( t ) {
-				case CUnknown("tRNS", data): alpha = data; break;
+				case CUnknown("tRNS", data): alpha = data; stop = true;
 				default:
 				}
-			
+				if (stop)
+					break;
+			}
+
+
 			// if alpha is incomplete, pad with 0xFF
 			if( alpha != null && alpha.length < 1 << h.colbits ) {
 				var alpha2 = haxe.io.Bytes.alloc(1 << h.colbits);
@@ -650,15 +658,22 @@ class Tools {
 			trace("Very Indexed");
 			var pal = getPalette(d);
 			if( pal == null ) throw "PNG Palette is missing";
-			
+
 			// transparent palette extension
 			var alpha = null;
+
+			/// stop var instead of break because it generates a throw when inside a for
+			var stop = false;
 			for( t in d )
+			{
 				switch( t ) {
-				case CUnknown("tRNS", data): alpha = data; break;
+				case CUnknown("tRNS", data): alpha = data; stop = true;
 				default:
 				}
-			
+				if (stop)
+					break;
+			}
+
 			// if alpha is incomplete, pad with 0xFF
 			if( alpha != null && alpha.length < 1 << h.colbits ) {
 				var alpha2 = haxe.io.Bytes.alloc(1 << h.colbits);
