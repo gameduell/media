@@ -9,5 +9,6 @@ enum ImageFormat
 {
     ImageFormatPNG;
     ImageFormatJPG;
+    ImageFormatWEBP;
     ImageFormatOther;
 }

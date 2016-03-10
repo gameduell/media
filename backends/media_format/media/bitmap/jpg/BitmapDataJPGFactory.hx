@@ -34,7 +34,6 @@ class BitmapDataJPGFactory
     static public function decodeData(imageData: Data, flipRGB: Bool = true): BitmapData
     {
         var haxeBytes: haxe.io.Bytes = imageData.getBytes();
-
         var jpgReader: jpg.Reader = new jpg.Reader(haxeBytes);
         jpgReader.parse();
 
