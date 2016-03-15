@@ -21,6 +21,15 @@ static value media_ios_loadBitmapGeneric(value imageData, value nativeData, valu
 }
 DEFINE_PRIM (media_ios_loadBitmapGeneric, 3);
 
+static value media_ios_loadWebPBitmapGeneric(value imageData, value nativeData, value flipRGB)
+{
+    NativeData* ptrIn = ((NativeData*)val_data(imageData));
+    NativeData* ptrOut = ((NativeData*)val_data(nativeData));
+    bool flip = val_bool(flipRGB);
+	return [BitmapLoaderIOS loadWebPBitmap:ptrIn outData:ptrOut flipRGB:flip];
+}
+DEFINE_PRIM (media_ios_loadWebPBitmapGeneric, 3);
+
 
 static value media_ios_getWidth()
 {

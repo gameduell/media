@@ -217,6 +217,116 @@
     return alloc_bool(true);
 }
 
++ (value) loadWebPBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB;
+{
+    _hasAlpha = false;
+    _hasPremultipliedAlpha = false;
+    _width = 0;
+    _height = 0;
+    _pixelFormat = 0;
+    
+    WebPBitstreamFeatures features;
+    int width, height;
+    int byteCount = 0;
+    unsigned char* webp = imageData->ptr;
+
+    size_t webpsize = imageData->allocedLength;
+    
+    VP8StatusCode featuresResult = WebPGetFeatures((uint8_t*)webp, webpsize, &features);
+
+    NSLog(@"Test!");
+    
+    if (featuresResult != VP8_STATUS_OK)
+    {
+        _errorMessage = "error: bad feature result";
+        return alloc_bool(false);
+    }
+    else
+    {
+        _errorMessage = "noerror";
+    }
+
+    if (features.has_alpha)
+    {
+        _hasAlpha = true;
+        _hasPremultipliedAlpha = true;
+        _pixelFormat = 0;
+    }
+    else
+    {
+        _hasAlpha = false;
+        _hasPremultipliedAlpha = false;
+        _pixelFormat = 1;
+    }
+
+    _width = features.width;
+    _height = features.height;
+    byteCount = _width * _height * 4;
+
+    unsigned char* image = WebPDecodeRGBA((uint8_t*)webp, webpsize, &width, &height);
+
+    if (width != _width || height != _height)
+    {
+        _errorMessage = "Invalid image features!";
+        return alloc_bool(false);
+    }
+
+    // Premultiply alpha
+    if (_hasAlpha)
+    {
+        unsigned char stride = 4;
+        float r,g,b, aFraction;
+
+        for(unsigned int i = 0; i != _width * _height; ++i)
+        {
+            aFraction = (float)image[i * stride + 3] / 255.0f;
+            b = (float)image[i * stride + 2];
+            g = (float)image[i * stride + 1];
+            r = (float)image[i * stride + 0];
+
+            image[i * stride + 0] = (unsigned char)(r * aFraction);
+            image[i * stride + 1] = (unsigned char)(g * aFraction);
+            image[i * stride + 2] = (unsigned char)(b * aFraction);
+        }
+    }
+
+    // Flip RGB
+    if (flipRGB && (_pixelFormat == 1 || _pixelFormat == 0))
+    {
+        unsigned char stride = 4;
+        unsigned char r,b;
+
+        for(unsigned int i = 0; i != _width * _height; ++i)
+        {
+            r = image[i * stride + 0];
+            b = image[i * stride + 2];
+            image[i * stride + 0] = b;
+            image[i * stride + 2] = r;
+        }
+    }
+
+    // Convert to RGB565
+    if(_pixelFormat == 1)
+    {
+        byteCount = _width * _height * 2;
+        void* tempData = malloc(byteCount);
+        unsigned int *inPixel32 = (unsigned int*)image;
+        unsigned short *outPixel16 = (unsigned short*)tempData;
+        for(unsigned int i = 0; i != _width * _height; ++i, ++inPixel32)
+            *outPixel16++ = (unsigned short)(((((*inPixel32 >> 0) & 0xFF) >> 3) << 11) |
+                                            ((((*inPixel32 >> 8) & 0xFF) >> 2) << 5) |
+                                            ((((*inPixel32 >> 16) & 0xFF) >> 3) << 0));
+        free(image);
+        image = (unsigned char*)tempData;
+    }
+
+    outData->ptr = (uint8_t*)image;
+    outData->allocedLength = byteCount;
+    outData->offsetLength = byteCount;
+    
+    return alloc_bool(true);
+}
+
 + (value) getWidth
 {
     return alloc_int(_width);

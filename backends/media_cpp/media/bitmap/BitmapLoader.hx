@@ -9,6 +9,7 @@ class BitmapLoader
 {
     static private var media_cpp_loadBitmapFromPng = Lib.load ("media_cpp", "media_cpp_loadBitmapFromPng", 3);
     static private var media_cpp_loadBitmapFromJpg = Lib.load ("media_cpp", "media_cpp_loadBitmapFromJpg", 3);
+    static private var media_cpp_loadBitmapFromWebP = Lib.load ("media_cpp", "media_cpp_loadBitmapFromWebP", 3);
 
     static private var media_cpp_getWidth = Lib.load ("media_cpp", "media_cpp_getWidth", 0);
     static private var media_cpp_getHeight = Lib.load ("media_cpp", "media_cpp_getHeight", 0);
@@ -27,14 +28,18 @@ class BitmapLoader
         {
             case ImageFormat.ImageFormatPNG: result = media_cpp_loadBitmapFromPng(data.nativeData, resultData.nativeData, flipRGB);
             case ImageFormat.ImageFormatJPG: result = media_cpp_loadBitmapFromJpg(data.nativeData, resultData.nativeData, flipRGB);
+            case ImageFormat.ImageFormatWEBP: result = media_cpp_loadBitmapFromWebP(data.nativeData, resultData.nativeData, flipRGB);
             default: result = false;
         }
+
+        trace('ImageFormat: $imageFormat');
+        trace(result);
 
         if (!result)
         {
             trace("Error: " + media_cpp_getErrorString());
-            resultData = null;
-            return null;
+            //resultData = null;
+            //return null;
         }
 
         var width: Int = media_cpp_getWidth();

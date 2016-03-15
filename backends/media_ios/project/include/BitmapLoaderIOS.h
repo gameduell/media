@@ -11,6 +11,7 @@
 
 #include <hx/CFFI.h>
 #include <types/NativeData.h>
+#include "webpi/webp/decode.h"
 
 static BOOL _hasAlpha;
 static BOOL _hasPremultipliedAlpha;
@@ -22,6 +23,7 @@ static const char* _errorMessage;
 @interface BitmapLoaderIOS : NSObject
 
 + (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB;
++ (value) loadWebPBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB;
 
 + (value) getWidth;
 + (value) getHeight;

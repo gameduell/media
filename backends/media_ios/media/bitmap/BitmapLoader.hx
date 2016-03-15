@@ -9,6 +9,7 @@ class BitmapLoader
 {
     // Generic because on iOS it can load multiple formats like jpg, png, tiff, etc
     static private var media_ios_loadBitmapGeneric = Lib.load ("media_ios", "media_ios_loadBitmapGeneric", 3);
+    static private var media_ios_loadWebPBitmapGeneric = Lib.load ("media_ios", "media_ios_loadWebPBitmapGeneric", 3);
 
     static private var media_ios_getWidth = Lib.load ("media_ios", "media_ios_getWidth", 0);
     static private var media_ios_getHeight = Lib.load ("media_ios", "media_ios_getHeight", 0);
@@ -21,7 +22,15 @@ class BitmapLoader
     {
         var resultData: Data = new Data(0);
 
-        var result: Bool = media_ios_loadBitmapGeneric(data.nativeData, resultData.nativeData, flipRGB);
+        var result: Bool = false;
+
+        switch (imageFormat)
+        {
+            case ImageFormat.ImageFormatPNG: result = media_ios_loadBitmapGeneric(data.nativeData, resultData.nativeData, flipRGB);
+            case ImageFormat.ImageFormatJPG: result = media_ios_loadBitmapGeneric(data.nativeData, resultData.nativeData, flipRGB);
+            case ImageFormat.ImageFormatWEBP: result = media_ios_loadWebPBitmapGeneric(data.nativeData, resultData.nativeData, flipRGB);
+            default: result = false;
+        }
 
         if (!result)
         {
