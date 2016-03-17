@@ -1,5 +1,6 @@
 package media.bitmap.webp;
 
+import webpjs.WebPDecoder.VP8Status;
 import types.DataType;
 import types.DataInputStream;
 import types.haxeinterop.HaxeInputInteropStream;
@@ -25,14 +26,39 @@ class BitmapDataWEBPFactory
         trace("decoding starts");
         var decoder = new WebPDecoder();
 
-        var data: WebPImageData = decoder.WebPDecodeARGB(imageData.uint8Array, imageData.offsetLength);
+        var WebPImage = { width:{value:0},height:{value:0} }
+
+        var tmpData = new Data(64 * 64);
+
+        tmpData.writeIntArray([for (i in 0 ... 64*64) 1], DataType.DataTypeInt8);
+
+        var array = imageData.readIntArray(imageData.offsetLength, types.DataType.DataTypeUInt8);
+
+        var data: Dynamic = decoder.WebPDecodeRGBA(array, imageData.offsetLength, WebPImage.width, WebPImage.height);
+
+        var features: WebPBitstreamFeatures = {width: 0, height: 0, pad: null, has_animation: false, has_alpha: false, format: 0};
+
+        var result: VP8Status = decoder.WebPGetFeatures(array, imageData.offsetLength, features);
+
+        trace(result);
+        trace(features);
+
+        trace(WebPImage.width, WebPImage.height);
 
         if (data == null)
-            return null;
+        {
+            trace("NULL DATA!!!!");
+            return new BitmapData(tmpData, 64, 64, BitmapComponentFormat.RGBA8888, ImageFormat.ImageFormatPNG, true, true);
+        }
+        else
+        {
+            //trace("HFUGNKERNGJRGNKREJGNRGNELKNGL");
+           // trace(data.length);
+        }
 
-        var newData: Data = new Data(data.data.length);
-        newData.writeIntArray(data.data, DataType.DataTypeUInt8);
+        var newData: Data = new Data(data.length);
+        newData.writeIntArray(data, DataType.DataTypeUInt8);
 
-        return new BitmapData(newData, data.width, data.height, BitmapComponentFormat.ARGB8888, ImageFormat.ImageFormatWEBP, true, true);
+        return new BitmapData(newData, WebPImage.width.value, WebPImage.height.value, BitmapComponentFormat.RGBA8888, ImageFormat.ImageFormatPNG, true, true);
     }
 }

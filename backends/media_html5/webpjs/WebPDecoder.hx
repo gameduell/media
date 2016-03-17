@@ -5,26 +5,24 @@ import types.InputStream;
 
 @:native("window.WebPDecoder")
 extern class WebPDecoder {
-    public var WebPDecoderConfig: WebPDecoderConfig;
-
     function new():Void;
 
-    function WebPDecodeARGB(data: js.html.Uint8Array, dataSize: Int, ?width: Int, ?height: Int): WebPImageData;
-    function WebPGetDecoderVersion(a: Dynamic): Int;
-    function WebPGetFeatures(data: js.html.Uint8Array , dataSize: Int, input: InputStream): VP8Status;
+    function WebPDecodeARGB(data: Dynamic, dataSize: Int, width: { value : Int } , height: { value : Int } ): Dynamic;
+    function WebPDecodeRGBA(data: Dynamic, dataSize: Int, width: { value : Int } , height: { value : Int } ): Dynamic;
+    function WebPDecodeRGB(data: Dynamic, dataSize: Int, width: { value : Int } , height: { value : Int } ): Dynamic;
+
+    function WebPGetFeatures(data: Dynamic, dataSize: Int, features: Dynamic): VP8Status;
 }
 
-typedef WebPImageData = {
-    var data: Array<Int>;
-    var width: Int;
-    var height: Int;
-}
+typedef WebPBitstreamFeatures = {
+var width: Int;         // Width in pixels, as read from the bitstream.
+var height: Int;       // Height in pixels, as read from the bitstream.
+var has_alpha: Bool;    // True if the bitstream contains an alpha channel.
+var has_animation: Bool;  // True if the bitstream is an animation.
+var format: Int;         // 0 = undefined (/mixed), 1 = lossy, 2 = lossless
 
-typedef WebPDecoderConfig = {
-    var input: Dynamic;
-    var output: Dynamic;
-    var options: Dynamic;
-}
+var pad: Dynamic;    // padding for later use
+};
 
 @:enum
 abstract VP8Status(Int)

@@ -1,0 +1,16 @@
+This project compiles webp to emscripten so it can be used in the web.
+
+To compile run:
+haxelib run hxcpp Build.xml -Demscripten
+
+It will output a webpdecoder.js file.
+
+There is a test file that you can use to test the decoding.
+Just run "node test.js". You might need to install pngjs with "npm install pngjs"
+
+You also have to change the emscripten toolchain in HXCPP a bit. The changes are:
+
+- Change extension for intermediate object files to .bc
+    - search for the compiler section and set <ext value=".bc" />
+- Change extension of output to .js
+    - search for the linker section and set <ext value=".js" />

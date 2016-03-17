@@ -3,4 +3,12 @@
 
     <haxelib name="format" version="3.1.2" />
 
+    <platform-config>
+        <html5>
+            <js-source path="webp/project/webpdecoder.js" applyTemplate="false" />
+            <js-source path="webp/project/webpdecoder.js.mem" applyTemplate="false" />
+        </html5>
+    </platform-config>
+
+
 </library>
