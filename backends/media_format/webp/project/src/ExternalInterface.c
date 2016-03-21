@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#define WEBP_FORCE_ALIGNED
 
 #include "webpi/webp/decode.h"
 #include <stdlib.h>

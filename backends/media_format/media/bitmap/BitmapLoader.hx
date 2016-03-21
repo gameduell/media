@@ -11,8 +11,9 @@ class BitmapLoader
     {
         switch (imageFormat)
         {
-            case ImageFormat.ImageFormatPNG: return BitmapDataWEBPFactory.decodeData(data, flipRGB);
-            case ImageFormat.ImageFormatJPG: return BitmapDataWEBPFactory.decodeData(data, flipRGB);
+            case ImageFormat.ImageFormatPNG: return BitmapDataPNGFactory.decodeData(data, flipRGB);
+            case ImageFormat.ImageFormatJPG: return BitmapDataJPGFactory.decodeData(data, flipRGB);
+            case ImageFormat.ImageFormatWEBP: return BitmapDataWEBPFactory.decodeData(data, flipRGB);
             default: return null;
         }
     }

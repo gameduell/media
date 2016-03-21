@@ -2,143 +2,31 @@
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
 
-	<set name="sse2" value="1" if="HXCPP_X86" />
+	<include name="../../webp_decoder/project/PartialBuild.xml" />
 
 	<files id="src">
 
         <include name="${haxelib:duell_types}/backends/types_cpp/native.xml" />
 
 		<compilerflag value="-Iinclude"/>
-		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/cpufeatures" if="android"/>
-
-		<file name="${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.c" if="android"/>
 
 		<file name="src/ExternalInterface.cpp"/>
 		<file name="src/lodepng.cpp"/>
 		<file name="src/jpgd.cpp"/>
 
-		<file name="src/webp/dec/alpha.c" />
-		<file name="src/webp/dec/buffer.c" />
-		<file name="src/webp/dec/frame.c" />
-		<file name="src/webp/dec/idec.c" />
-		<file name="src/webp/dec/io.c" />
-		<file name="src/webp/dec/quant.c" />
-		<file name="src/webp/dec/tree.c" />
-		<file name="src/webp/dec/vp8.c" />
-		<file name="src/webp/dec/vp8l.c" />
-		<file name="src/webp/dec/webp.c" />
-
-		<file name="src/webp/demux/anim_decode.c" />
-		<file name="src/webp/demux/demux.c" />
-
-		<file name="src/webp/dsp/alpha_processing.c" unless="sse2,neon" />
-		<file name="src/webp/dsp/alpha_processing_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/alpha_processing_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/alpha_processing_sse41.c" if="sse2" />
-		<file name="src/webp/dsp/argb.c" unless="sse2,neon" />
-		<file name="src/webp/dsp/argb_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/argb_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/cost.c" unless="mips32,neon" />
-		<file name="src/webp/dsp/cost_mips32.c" />
-		<file name="src/webp/dsp/cost_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/cost_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/cpu.c" />
-		<file name="src/webp/dsp/dec.c" unless="sse2,neon" />
-		<file name="src/webp/dsp/dec_clip_tables.c" />
-		<file name="src/webp/dsp/dec_mips32.c" />
-		<file name="src/webp/dsp/dec_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/dec_neon.c" if="neon" />
-		<file name="src/webp/dsp/dec_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/dec_sse41.c" if="sse2" />
-		<file name="src/webp/dsp/enc.c" unless="sse2,avc2,mips32" />
-		<file name="src/webp/dsp/enc_avx2.c" if="avx2" />
-		<file name="src/webp/dsp/enc_mips32.c" if="mips32" />
-		<file name="src/webp/dsp/enc_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/enc_neon.c" if="neon" />
-		<file name="src/webp/dsp/enc_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/enc_sse41.c" if="sse2"/>
-		<file name="src/webp/dsp/filters.c" unless="mips32,neon" />
-		<file name="src/webp/dsp/filters_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/filters_sse2.c" if="sse2"/>
-		<file name="src/webp/dsp/lossless.c" unless="mips32,neon" />
-		<file name="src/webp/dsp/lossless_enc.c" unless="mips32,neon" />
-		<file name="src/webp/dsp/lossless_enc_mips32.c" />
-		<file name="src/webp/dsp/lossless_enc_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/lossless_enc_neon.c" if="neon" />
-		<file name="src/webp/dsp/lossless_enc_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/lossless_enc_sse41.c" if="sse2" />
-		<file name="src/webp/dsp/lossless_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/lossless_neon.c" if="neon" />
-		<file name="src/webp/dsp/lossless_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/rescaler.c" unless="mips32,neon" />
-		<file name="src/webp/dsp/rescaler_mips32.c" />
-		<file name="src/webp/dsp/rescaler_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/rescaler_neon.c" if="neon" />
-		<file name="src/webp/dsp/rescaler_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/upsampling.c" unless="mips32,neon" />
-		<file name="src/webp/dsp/upsampling_mips_dsp_r2.c" />
-		<file name="src/webp/dsp/upsampling_neon.c" if="neon" />
-		<file name="src/webp/dsp/upsampling_sse2.c" if="sse2" />
-		<file name="src/webp/dsp/yuv.c" unless="mips32,sse2" />
-		<file name="src/webp/dsp/yuv_mips32.c" if="mips32" />
-		<file name="src/webp/dsp/yuv_mips_dsp_r2.c" if="mips32" />
-		<file name="src/webp/dsp/yuv_sse2.c" if="sse2" />
-
-		<file name="src/webp/enc/alpha.c" />
-		<file name="src/webp/enc/analysis.c" />
-		<file name="src/webp/enc/backward_references.c" />
-		<file name="src/webp/enc/config.c" />
-		<file name="src/webp/enc/cost.c" />
-		<file name="src/webp/enc/delta_palettization.c" />
-		<file name="src/webp/enc/filter.c" />
-		<file name="src/webp/enc/frame.c" />
-		<file name="src/webp/enc/histogram.c" />
-		<file name="src/webp/enc/iterator.c" />
-		<file name="src/webp/enc/near_lossless.c" />
-		<file name="src/webp/enc/picture.c" />
-		<file name="src/webp/enc/picture_csp.c" />
-		<file name="src/webp/enc/picture_psnr.c" />
-		<file name="src/webp/enc/picture_rescale.c" />
-		<file name="src/webp/enc/picture_tools.c" />
-		<file name="src/webp/enc/quant.c" />
-		<file name="src/webp/enc/syntax.c" />
-		<file name="src/webp/enc/token.c" />
-		<file name="src/webp/enc/tree.c" />
-		<file name="src/webp/enc/vp8l.c" /> 
-		<file name="src/webp/enc/webpenc.c" />
-
-		<file name="src/webp/extras/extras.c" />
-
-		<file name="src/webp/mux/anim_encode.c" />
-		<file name="src/webp/mux/muxedit.c" />
-		<file name="src/webp/mux/muxinternal.c" />
-		<file name="src/webp/mux/muxread.c" />
-
-		<file name="src/webp/utils/bit_reader.c" />
-		<file name="src/webp/utils/bit_writer.c" />
-		<file name="src/webp/utils/color_cache.c" />
-		<file name="src/webp/utils/filters.c" />
-		<file name="src/webp/utils/huffman.c" />
-		<file name="src/webp/utils/huffman_encode.c" />
-		<file name="src/webp/utils/quant_levels.c" />
-		<file name="src/webp/utils/quant_levels_dec.c" />
-		<file name="src/webp/utils/random.c" />
-		<file name="src/webp/utils/rescaler.c" />
-		<file name="src/webp/utils/thread.c" />
-		<file name="src/webp/utils/utils.c" />
 	</files>
-	
+
 	<target id="NDLL" output="${LIBPREFIX}media_cpp${DBG}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
-		
+
 		<outdir name="../ndll/${BINDIR}"/>
 		<files id="src"/>
 
 	</target>
-	
+
 	<target id="default">
-		
+
 		<target id="NDLL"/>
-		
+
 	</target>
-	
+
 </xml>
