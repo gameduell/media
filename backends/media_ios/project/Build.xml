@@ -2,6 +2,9 @@
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
 
+    <set name="neon" value="1" unless="iphonesim" />
+    <set name="sse2" value="1" if="iphonesim" />
+
 	<include name="../../webp_decoder/project/PartialBuild.xml" />
 
 	<files id="src">

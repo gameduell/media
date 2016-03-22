@@ -1,7 +1,5 @@
 <xml>
 
-    <set name="neon" value="1" unless="iphonesim" />
-    <set name="sse2" value="1" if="iphonesim" />
 
 	<files id="src">
 
