@@ -31,6 +31,8 @@ import cpp.Lib;
 
 import media.bitmap.BitmapData;
 
+import media.bitmap.svg.BitmapDataSVGFactory;
+
 class BitmapLoader
 {
     static private var media_cpp_loadBitmapFromPng = Lib.load ("media_cpp", "media_cpp_loadBitmapFromPng", 3);
@@ -44,8 +46,13 @@ class BitmapLoader
     static private var media_cpp_getPixelFormat = Lib.load ("media_cpp", "media_cpp_getPixelFormat", 0);
     static private var media_cpp_getErrorString = Lib.load ("media_cpp", "media_cpp_getErrorString", 0);
 
-    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true): BitmapData
+    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true, scale: Float = 1.0): BitmapData
     {
+        if (imageFormat == ImageFormat.ImageFormatSVG)
+        {
+            return BitmapDataSVGFactory.decodeData(data, flipRGB, scale);
+        }
+
         var resultData: Data = new Data(0);
 
         var result: Bool = false;

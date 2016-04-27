@@ -31,6 +31,8 @@ import cpp.Lib;
 
 import media.bitmap.BitmapData;
 
+import media.bitmap.svg.BitmapDataSVGFactory;
+
 class BitmapLoader
 {
     // Generic because on iOS it can load multiple formats like jpg, png, tiff, etc
@@ -44,8 +46,13 @@ class BitmapLoader
     static private var media_ios_getPixelFormat = Lib.load ("media_ios", "media_ios_getPixelFormat", 0);
     static private var media_ios_getErrorString = Lib.load ("media_ios", "media_ios_getErrorString", 0);
 
-    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true): BitmapData
+    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true, scale: Float = 1.0): BitmapData
     {
+        if (imageFormat == ImageFormat.ImageFormatSVG)
+        {
+            return BitmapDataSVGFactory.decodeData(data, flipRGB, scale);
+        }
+
         var resultData: Data = new Data(0);
 
         var result: Bool = false;
