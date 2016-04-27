@@ -36,7 +36,6 @@ class BitmapDataSVGFactory
         svgContext.renderVectorBinToColorStorage(svgData, colorStorage, transform);
 
         var bitmapData = bitmapDataFromColorStorage(colorStorage);
-
         bitmapData.data.offset = 0;
 
         return bitmapData;
@@ -48,7 +47,7 @@ class BitmapDataSVGFactory
         var hasPremultipliedAlpha = false;
 
         return new BitmapData(colorStorage.data, colorStorage.width, colorStorage.height,
-            BitmapComponentFormat.RGBA8888, ImageFormat.ImageFormatOther, hasAlpha, hasPremultipliedAlpha);
+            BitmapComponentFormat.RGBA8888, ImageFormat.ImageFormatSVG, hasAlpha, hasPremultipliedAlpha);
     }
 }
 

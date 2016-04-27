@@ -3,6 +3,8 @@
 
 	<duelllib name="types" version="3.0.0+" />
 
+	<duelllib name="vectorx" version="master" />
+
     <!--Warning: The order of the includes is important to determine which implementations are used-->
     <include path="backends/media_format/duell_library.xml" />
 
