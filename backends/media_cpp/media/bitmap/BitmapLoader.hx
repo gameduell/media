@@ -65,14 +65,10 @@ class BitmapLoader
             default: result = false;
         }
 
-        trace('ImageFormat: $imageFormat');
-        trace(result);
-
         if (!result)
         {
             trace("Error: " + media_cpp_getErrorString());
-            //resultData = null;
-            //return null;
+            return null;
         }
 
         var width: Int = media_cpp_getWidth();
