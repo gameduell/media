@@ -33,6 +33,19 @@
 
 #include "BitmapLoaderIOS.h"
 
+static value media_ios_loadAsyncBitmapGeneric(value imageData, value nativeData, value flipRGB, value callback)
+{
+    NativeData* ptrIn = ((NativeData*)val_data(imageData));
+    NativeData* ptrOut = ((NativeData*)val_data(nativeData));
+    bool flip = val_bool(flipRGB);
+
+    value *__callback = alloc_root();
+    *__callback = callback;
+
+	return [BitmapLoaderIOS loadAsyncBitmap:ptrIn outData:ptrOut flipRGB:flip callback:__callback];
+}
+DEFINE_PRIM (media_ios_loadAsyncBitmapGeneric, 4);
+
 static value media_ios_loadBitmapGeneric(value imageData, value nativeData, value flipRGB)
 {
     NativeData* ptrIn = ((NativeData*)val_data(imageData));
@@ -41,6 +54,19 @@ static value media_ios_loadBitmapGeneric(value imageData, value nativeData, valu
 	return [BitmapLoaderIOS loadBitmap:ptrIn outData:ptrOut flipRGB:flip];
 }
 DEFINE_PRIM (media_ios_loadBitmapGeneric, 3);
+
+static value media_ios_loadAsyncWebPBitmapGeneric(value imageData, value nativeData, value flipRGB, value callback)
+{
+    NativeData* ptrIn = ((NativeData*)val_data(imageData));
+    NativeData* ptrOut = ((NativeData*)val_data(nativeData));
+    bool flip = val_bool(flipRGB);
+
+    value *__callback = alloc_root();
+    *__callback = callback;
+
+	return [BitmapLoaderIOS loadAsyncWebPBitmap:ptrIn outData:ptrOut flipRGB:flip callback:__callback];
+}
+DEFINE_PRIM (media_ios_loadAsyncWebPBitmapGeneric, 4);
 
 static value media_ios_loadWebPBitmapGeneric(value imageData, value nativeData, value flipRGB)
 {

@@ -44,6 +44,9 @@ static const char* _errorMessage;
 
 @interface BitmapLoaderIOS : NSObject
 
++ (value) loadAsyncBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB callback:(value*)callback;
++ (value) loadAsyncWebPBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB callback:(value*)callback;
+
 + (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB;
 + (value) loadWebPBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB;
 

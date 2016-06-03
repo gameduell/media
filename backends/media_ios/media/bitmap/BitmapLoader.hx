@@ -26,6 +26,8 @@
 
 package media.bitmap;
 
+import media.bitmap.ImageFormat;
+import media.bitmap.BitmapData;
 import types.Data;
 import cpp.Lib;
 
@@ -36,7 +38,9 @@ import media.bitmap.svg.BitmapDataSVGFactory;
 class BitmapLoader
 {
     // Generic because on iOS it can load multiple formats like jpg, png, tiff, etc
+    static private var media_ios_loadAsyncBitmapGeneric = Lib.load ("media_ios", "media_ios_loadAsyncBitmapGeneric", 4);
     static private var media_ios_loadBitmapGeneric = Lib.load ("media_ios", "media_ios_loadBitmapGeneric", 3);
+    static private var media_ios_loadAsyncWebPBitmapGeneric = Lib.load ("media_ios", "media_ios_loadAsyncWebPBitmapGeneric", 4);
     static private var media_ios_loadWebPBitmapGeneric = Lib.load ("media_ios", "media_ios_loadWebPBitmapGeneric", 3);
 
     static private var media_ios_getWidth = Lib.load ("media_ios", "media_ios_getWidth", 0);
@@ -46,6 +50,32 @@ class BitmapLoader
     static private var media_ios_getPixelFormat = Lib.load ("media_ios", "media_ios_getPixelFormat", 0);
     static private var media_ios_getErrorString = Lib.load ("media_ios", "media_ios_getErrorString", 0);
 
+    static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
+                                                    scale: Float = 1.0, callback: BitmapData -> Void = null)
+    {
+        if (callback == null)
+        {
+            return;
+        }
+
+        if (imageFormat == ImageFormat.ImageFormatSVG)
+        {
+            callback(BitmapDataSVGFactory.decodeData(data, flipRGB, scale));
+            return;
+        }
+
+        var resultData: Data = new Data(0);
+
+        switch (imageFormat)
+        {
+            case ImageFormat.ImageFormatPNG | ImageFormat.ImageFormatJPG: media_ios_loadAsyncBitmapGeneric(
+                data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
+            case ImageFormat.ImageFormatWEBP: media_ios_loadAsyncWebPBitmapGeneric(
+                data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
+            default: callback(null);
+        }
+    }
+
     static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true, scale: Float = 1.0): BitmapData
     {
         if (imageFormat == ImageFormat.ImageFormatSVG)
@@ -54,7 +84,6 @@ class BitmapLoader
         }
 
         var resultData: Data = new Data(0);
-
         var result: Bool = false;
 
         switch (imageFormat)
@@ -65,10 +94,21 @@ class BitmapLoader
             default: result = false;
         }
 
+        return onImageLoaded(null, flipRGB, imageFormat, resultData, result);
+    }
+
+    static private function onImageLoaded(callback: BitmapData -> Void, flipRGB: Bool, imageFormat: ImageFormat, resultData: Data, result: Bool): BitmapData
+    {
         if (!result)
         {
             trace("Error: " + media_ios_getErrorString());
             resultData = null;
+
+            if (callback != null)
+            {
+                callback(null);
+            }
+
             return null;
         }
 
@@ -80,7 +120,14 @@ class BitmapLoader
 
         var bitmapComponentFormat: BitmapComponentFormat = bitmapComponentFormatFromPixelFormat(pixelFormat, flipRGB);
 
-        return new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
+        var bitmapData: BitmapData = new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
+
+        if (callback != null)
+        {
+            callback(bitmapData);
+        }
+
+        return bitmapData;
     }
 
     static private function bitmapComponentFormatFromPixelFormat(pixelFormat: Int, flipRGB: Bool): BitmapComponentFormat

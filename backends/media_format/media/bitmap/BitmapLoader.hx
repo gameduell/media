@@ -45,4 +45,13 @@ class BitmapLoader
             default: return null;
         }
     }
+
+    static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
+                                                    scale: Float = 1.0, callback: BitmapData -> Void = null): Void
+    {
+        if (callback != null)
+        {
+            callback(bitmapFromImageData(data, imageFormat, flipRGB, scale));
+        }
+    }
 }

@@ -46,6 +46,15 @@ class BitmapLoader
     static private var media_cpp_getPixelFormat = Lib.load ("media_cpp", "media_cpp_getPixelFormat", 0);
     static private var media_cpp_getErrorString = Lib.load ("media_cpp", "media_cpp_getErrorString", 0);
 
+    static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
+                                                    scale: Float = 1.0, callback: BitmapData -> Void = null): Void
+    {
+        if (callback != null)
+        {
+            callback(bitmapFromImageData(data, imageFormat, flipRGB, scale));
+        }
+    }
+
     static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true, scale: Float = 1.0): BitmapData
     {
         if (imageFormat == ImageFormat.ImageFormatSVG)
