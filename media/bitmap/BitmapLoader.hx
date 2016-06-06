@@ -35,6 +35,9 @@ extern class BitmapLoader
     static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
                                                scale: Float = 1.0): BitmapData;
 
+    /// The same behavior as `bitmapFromImageData`, except it tries to do the decoding async in the platforms where
+    /// possible. The result is returned to the callback.
+    /// This implementation is not thread-safe in every platform.
     static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
                                                     scale: Float = 1.0, callback: BitmapData -> Void = null): Void;
 }

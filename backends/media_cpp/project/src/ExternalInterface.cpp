@@ -24,10 +24,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __GNUC__
+  #define JAVA_EXPORT __attribute__ ((visibility("default"))) JNIEXPORT
+#else
+  #define JAVA_EXPORT JNIEXPORT
+#endif
+
 #ifndef STATIC_LINK
 #define IMPLEMENT_API
 #endif
 
+#include <jni.h>
 #include <hx/CFFI.h>
 #include <types/NativeData.h>
 
@@ -35,12 +42,35 @@
 #include "jpgd.h"
 #include "webpi/webp/decode.h"
 
+// async temp arguments
+static value* _onImageLoadedCallback = NULL;
+static value _imageData;
+static value _nativeData;
+static value _flipRGB;
+static value _result;
+
 static bool _hasAlpha;
 static bool _hasPremultipliedAlpha;
 static unsigned int _width;
 static unsigned int _height;
 static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
 static const char* _errorMessage;
+
+static void media_cpp_setArguments(value imageData, value nativeData, value flipRGB, value callback)
+{
+    _imageData = imageData;
+    _nativeData = nativeData;
+    _flipRGB = flipRGB;
+
+    if (_onImageLoadedCallback == NULL)
+    {
+        _onImageLoadedCallback = alloc_root();
+    }
+
+    *_onImageLoadedCallback = callback;
+}
+DEFINE_PRIM (media_cpp_setArguments, 4);
+
 
 static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, value flipRGB)
 {
@@ -365,6 +395,58 @@ static value media_cpp_getErrorString()
     return alloc_string(_errorMessage);
 }
 DEFINE_PRIM (media_cpp_getErrorString, 0);
+
+
+/// JNI calls
+struct AutoHaxe
+{
+	int base;
+	const char *message;
+
+	AutoHaxe(const char *inMessage)
+	{
+		base = 0;
+		message = inMessage;
+		gc_set_top_of_stack(&base,true);
+	}
+	~AutoHaxe()
+	{
+		gc_set_top_of_stack(0,true);
+	}
+};
+
+extern "C" {
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadPngWithStaticArguments(JNIEnv* env);
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadJpgWithStaticArguments(JNIEnv* env);
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadWebPWithStaticArguments(JNIEnv* env);
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_finishAsyncLoading(JNIEnv* env);
+};
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadPngWithStaticArguments(JNIEnv* env)
+{
+	_result = media_cpp_loadBitmapFromPng(_imageData, _nativeData, _flipRGB);
+}
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadJpgWithStaticArguments(JNIEnv* env)
+{
+	_result = media_cpp_loadBitmapFromJpg(_imageData, _nativeData, _flipRGB);
+}
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadWebPWithStaticArguments(JNIEnv* env)
+{
+	_result = media_cpp_loadBitmapFromWebP(_imageData, _nativeData, _flipRGB);
+}
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_finishAsyncLoading(JNIEnv* env)
+{
+    AutoHaxe haxe("finishAsyncLoading");
+
+	val_call1(*_onImageLoadedCallback, _result);
+
+	// cleanup
+	media_cpp_setArguments(NULL, NULL, NULL, NULL);
+	_result = NULL;
+}
 
 
 /// OTHER

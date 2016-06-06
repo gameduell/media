@@ -26,6 +26,7 @@
 
 package media.bitmap;
 
+import hxjni.JNI;
 import types.Data;
 import cpp.Lib;
 
@@ -35,6 +36,13 @@ import media.bitmap.svg.BitmapDataSVGFactory;
 
 class BitmapLoader
 {
+    // lazily initialized for async loads
+    static private var jni_loadPngAsync: Dynamic = null;
+    static private var jni_loadJpgAsync: Dynamic = null;
+    static private var jni_loadWebPAsync: Dynamic = null;
+
+    static private var media_cpp_setArguments = Lib.load ("media_cpp", "media_cpp_setArguments", 4);
+
     static private var media_cpp_loadBitmapFromPng = Lib.load ("media_cpp", "media_cpp_loadBitmapFromPng", 3);
     static private var media_cpp_loadBitmapFromJpg = Lib.load ("media_cpp", "media_cpp_loadBitmapFromJpg", 3);
     static private var media_cpp_loadBitmapFromWebP = Lib.load ("media_cpp", "media_cpp_loadBitmapFromWebP", 3);
@@ -46,12 +54,42 @@ class BitmapLoader
     static private var media_cpp_getPixelFormat = Lib.load ("media_cpp", "media_cpp_getPixelFormat", 0);
     static private var media_cpp_getErrorString = Lib.load ("media_cpp", "media_cpp_getErrorString", 0);
 
+    static private function lazilyInitializeJNIFunctions()
+    {
+        if (jni_loadPngAsync == null)
+        {
+            jni_loadPngAsync = JNI.createStaticMethod("org/haxe/duell/media/MediaBitmapLoader", "loadPngAsync", "()V");
+            jni_loadJpgAsync = JNI.createStaticMethod("org/haxe/duell/media/MediaBitmapLoader", "loadJpgAsync", "()V");
+            jni_loadWebPAsync = JNI.createStaticMethod("org/haxe/duell/media/MediaBitmapLoader", "loadWebPAsync", "()V");
+        }
+    }
+
     static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
                                                     scale: Float = 1.0, callback: BitmapData -> Void = null): Void
     {
-        if (callback != null)
+        if (callback == null)
         {
-            callback(bitmapFromImageData(data, imageFormat, flipRGB, scale));
+            return;
+        }
+
+        if (imageFormat == ImageFormat.ImageFormatSVG)
+        {
+            callback(BitmapDataSVGFactory.decodeData(data, flipRGB, scale));
+            return;
+        }
+
+        var resultData: Data = new Data(0);
+
+        media_cpp_setArguments(data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
+
+        lazilyInitializeJNIFunctions();
+
+        switch (imageFormat)
+        {
+            case ImageFormat.ImageFormatPNG: jni_loadPngAsync();
+            case ImageFormat.ImageFormatJPG: jni_loadJpgAsync();
+            case ImageFormat.ImageFormatWEBP: jni_loadWebPAsync();
+            default: callback(null);
         }
     }
 
@@ -63,7 +101,6 @@ class BitmapLoader
         }
 
         var resultData: Data = new Data(0);
-
         var result: Bool = false;
 
         switch (imageFormat)
@@ -74,9 +111,21 @@ class BitmapLoader
             default: result = false;
         }
 
+        return onImageLoaded(null, flipRGB, imageFormat, resultData, result);
+    }
+
+    static public function onImageLoaded(callback: BitmapData -> Void, flipRGB: Bool, imageFormat: ImageFormat, resultData: Data, result: Bool): BitmapData
+    {
         if (!result)
         {
             trace("Error: " + media_cpp_getErrorString());
+            resultData = null;
+
+            if (callback != null)
+            {
+                callback(null);
+            }
+
             return null;
         }
 
@@ -88,7 +137,14 @@ class BitmapLoader
 
         var bitmapComponentFormat: BitmapComponentFormat = bitmapComponentFormatFromPixelFormat(pixelFormat, flipRGB);
 
-        return new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
+        var bitmapData: BitmapData = new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
+
+        if (callback != null)
+        {
+            callback(bitmapData);
+        }
+
+        return bitmapData;
     }
 
     static private function bitmapComponentFormatFromPixelFormat(pixelFormat: Int, flipRGB: Bool): BitmapComponentFormat
