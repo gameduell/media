@@ -31,8 +31,6 @@ import media.bitmap.BitmapData;
 import types.Data;
 import cpp.Lib;
 
-import media.bitmap.BitmapData;
-
 import media.bitmap.svg.BitmapDataSVGFactory;
 
 class BitmapLoader
@@ -50,6 +48,8 @@ class BitmapLoader
     static private var media_ios_getPixelFormat = Lib.load ("media_ios", "media_ios_getPixelFormat", 0);
     static private var media_ios_getErrorString = Lib.load ("media_ios", "media_ios_getErrorString", 0);
 
+    static private var executing: Bool = false;
+
     static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
                                                     scale: Float = 1.0, callback: BitmapData -> Void = null)
     {
@@ -64,6 +64,13 @@ class BitmapLoader
             return;
         }
 
+        if (executing)
+        {
+            throw "bitmapFromImageDataAsync is not thread-safe AND one execution is already pending";
+        }
+
+        executing = true;
+
         var resultData: Data = new Data(0);
 
         switch (imageFormat)
@@ -72,7 +79,11 @@ class BitmapLoader
                 data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
             case ImageFormat.ImageFormatWEBP: media_ios_loadAsyncWebPBitmapGeneric(
                 data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
-            default: callback(null);
+            default:
+            {
+                executing = false;
+                callback(null);
+            }
         }
     }
 
@@ -104,6 +115,8 @@ class BitmapLoader
             trace("Error: " + media_ios_getErrorString());
             resultData = null;
 
+            executing = false;
+
             if (callback != null)
             {
                 callback(null);
@@ -119,8 +132,9 @@ class BitmapLoader
         var pixelFormat: Int = media_ios_getPixelFormat();
 
         var bitmapComponentFormat: BitmapComponentFormat = bitmapComponentFormatFromPixelFormat(pixelFormat, flipRGB);
-
         var bitmapData: BitmapData = new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
+
+        executing = false;
 
         if (callback != null)
         {

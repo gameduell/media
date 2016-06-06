@@ -398,23 +398,6 @@ DEFINE_PRIM (media_android_getErrorString, 0);
 
 
 /// JNI calls
-struct AutoHaxe
-{
-	int base;
-	const char *message;
-
-	AutoHaxe(const char *inMessage)
-	{
-		base = 0;
-		message = inMessage;
-		gc_set_top_of_stack(&base,true);
-	}
-	~AutoHaxe()
-	{
-		gc_set_top_of_stack(0,true);
-	}
-};
-
 extern "C" {
 	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadPngWithStaticArguments(JNIEnv* env);
 	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadJpgWithStaticArguments(JNIEnv* env);
@@ -439,13 +422,16 @@ JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadWebP
 
 JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_finishAsyncLoading(JNIEnv* env)
 {
-    AutoHaxe haxe("finishAsyncLoading");
+    int base = 0;
+    gc_set_top_of_stack(&base, true);
 
 	val_call1(*_onImageLoadedCallback, _result);
 
 	// cleanup
 	media_android_setArguments(NULL, NULL, NULL, NULL);
 	_result = NULL;
+
+	gc_set_top_of_stack(0, true);
 }
 
 

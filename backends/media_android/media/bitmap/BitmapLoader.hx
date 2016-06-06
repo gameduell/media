@@ -54,6 +54,8 @@ class BitmapLoader
     static private var media_android_getPixelFormat = Lib.load ("media_android", "media_android_getPixelFormat", 0);
     static private var media_android_getErrorString = Lib.load ("media_android", "media_android_getErrorString", 0);
 
+    static private var executing: Bool = false;
+
     static private function lazilyInitializeJNIFunctions()
     {
         if (jni_loadPngAsync == null)
@@ -78,6 +80,13 @@ class BitmapLoader
             return;
         }
 
+        if (executing)
+        {
+            throw "bitmapFromImageDataAsync is not thread-safe AND one execution is already pending";
+        }
+
+        executing = true;
+
         var resultData: Data = new Data(0);
 
         media_android_setArguments(data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
@@ -89,7 +98,12 @@ class BitmapLoader
             case ImageFormat.ImageFormatPNG: jni_loadPngAsync();
             case ImageFormat.ImageFormatJPG: jni_loadJpgAsync();
             case ImageFormat.ImageFormatWEBP: jni_loadWebPAsync();
-            default: callback(null);
+            default:
+            {
+                media_android_setArguments(null, null, null, null);
+                executing = false;
+                callback(null);
+            }
         }
     }
 
@@ -121,6 +135,8 @@ class BitmapLoader
             trace("Error: " + media_android_getErrorString());
             resultData = null;
 
+            executing = false;
+
             if (callback != null)
             {
                 callback(null);
@@ -136,8 +152,9 @@ class BitmapLoader
         var pixelFormat: Int = media_android_getPixelFormat();
 
         var bitmapComponentFormat: BitmapComponentFormat = bitmapComponentFormatFromPixelFormat(pixelFormat, flipRGB);
-
         var bitmapData: BitmapData = new BitmapData(resultData, width, height, bitmapComponentFormat, imageFormat, hasAlpha, hasPremultipliedAlpha);
+
+        executing = false;
 
         if (callback != null)
         {
