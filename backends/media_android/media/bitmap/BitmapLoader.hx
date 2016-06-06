@@ -100,7 +100,7 @@ class BitmapLoader
             case ImageFormat.ImageFormatWEBP: jni_loadWebPAsync();
             default:
             {
-                media_android_setArguments(null, null, null, null);
+                media_android_setArguments(null, null, false, null);
                 executing = false;
                 callback(null);
             }
