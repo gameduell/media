@@ -41,18 +41,18 @@ class BitmapLoader
     static private var jni_loadJpgAsync: Dynamic = null;
     static private var jni_loadWebPAsync: Dynamic = null;
 
-    static private var media_cpp_setArguments = Lib.load ("media_cpp", "media_cpp_setArguments", 4);
+    static private var media_android_setArguments = Lib.load ("media_android", "media_android_setArguments", 4);
 
-    static private var media_cpp_loadBitmapFromPng = Lib.load ("media_cpp", "media_cpp_loadBitmapFromPng", 3);
-    static private var media_cpp_loadBitmapFromJpg = Lib.load ("media_cpp", "media_cpp_loadBitmapFromJpg", 3);
-    static private var media_cpp_loadBitmapFromWebP = Lib.load ("media_cpp", "media_cpp_loadBitmapFromWebP", 3);
+    static private var media_android_loadBitmapFromPng = Lib.load ("media_android", "media_android_loadBitmapFromPng", 3);
+    static private var media_android_loadBitmapFromJpg = Lib.load ("media_android", "media_android_loadBitmapFromJpg", 3);
+    static private var media_android_loadBitmapFromWebP = Lib.load ("media_android", "media_android_loadBitmapFromWebP", 3);
 
-    static private var media_cpp_getWidth = Lib.load ("media_cpp", "media_cpp_getWidth", 0);
-    static private var media_cpp_getHeight = Lib.load ("media_cpp", "media_cpp_getHeight", 0);
-    static private var media_cpp_hasAlpha = Lib.load ("media_cpp", "media_cpp_hasAlpha", 0);
-    static private var media_cpp_hasPremultipliedAlpha = Lib.load ("media_cpp", "media_cpp_hasPremultipliedAlpha", 0);
-    static private var media_cpp_getPixelFormat = Lib.load ("media_cpp", "media_cpp_getPixelFormat", 0);
-    static private var media_cpp_getErrorString = Lib.load ("media_cpp", "media_cpp_getErrorString", 0);
+    static private var media_android_getWidth = Lib.load ("media_android", "media_android_getWidth", 0);
+    static private var media_android_getHeight = Lib.load ("media_android", "media_android_getHeight", 0);
+    static private var media_android_hasAlpha = Lib.load ("media_android", "media_android_hasAlpha", 0);
+    static private var media_android_hasPremultipliedAlpha = Lib.load ("media_android", "media_android_hasPremultipliedAlpha", 0);
+    static private var media_android_getPixelFormat = Lib.load ("media_android", "media_android_getPixelFormat", 0);
+    static private var media_android_getErrorString = Lib.load ("media_android", "media_android_getErrorString", 0);
 
     static private function lazilyInitializeJNIFunctions()
     {
@@ -80,7 +80,7 @@ class BitmapLoader
 
         var resultData: Data = new Data(0);
 
-        media_cpp_setArguments(data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
+        media_android_setArguments(data.nativeData, resultData.nativeData, flipRGB, onImageLoaded.bind(callback, flipRGB, imageFormat, resultData));
 
         lazilyInitializeJNIFunctions();
 
@@ -105,9 +105,9 @@ class BitmapLoader
 
         switch (imageFormat)
         {
-            case ImageFormat.ImageFormatPNG: result = media_cpp_loadBitmapFromPng(data.nativeData, resultData.nativeData, flipRGB);
-            case ImageFormat.ImageFormatJPG: result = media_cpp_loadBitmapFromJpg(data.nativeData, resultData.nativeData, flipRGB);
-            case ImageFormat.ImageFormatWEBP: result = media_cpp_loadBitmapFromWebP(data.nativeData, resultData.nativeData, flipRGB);
+            case ImageFormat.ImageFormatPNG: result = media_android_loadBitmapFromPng(data.nativeData, resultData.nativeData, flipRGB);
+            case ImageFormat.ImageFormatJPG: result = media_android_loadBitmapFromJpg(data.nativeData, resultData.nativeData, flipRGB);
+            case ImageFormat.ImageFormatWEBP: result = media_android_loadBitmapFromWebP(data.nativeData, resultData.nativeData, flipRGB);
             default: result = false;
         }
 
@@ -118,7 +118,7 @@ class BitmapLoader
     {
         if (!result)
         {
-            trace("Error: " + media_cpp_getErrorString());
+            trace("Error: " + media_android_getErrorString());
             resultData = null;
 
             if (callback != null)
@@ -129,11 +129,11 @@ class BitmapLoader
             return null;
         }
 
-        var width: Int = media_cpp_getWidth();
-        var height: Int = media_cpp_getHeight();
-        var hasAlpha: Bool = media_cpp_hasAlpha();
-        var hasPremultipliedAlpha: Bool = media_cpp_hasPremultipliedAlpha();
-        var pixelFormat: Int = media_cpp_getPixelFormat();
+        var width: Int = media_android_getWidth();
+        var height: Int = media_android_getHeight();
+        var hasAlpha: Bool = media_android_hasAlpha();
+        var hasPremultipliedAlpha: Bool = media_android_hasPremultipliedAlpha();
+        var pixelFormat: Int = media_android_getPixelFormat();
 
         var bitmapComponentFormat: BitmapComponentFormat = bitmapComponentFormatFromPixelFormat(pixelFormat, flipRGB);
 
