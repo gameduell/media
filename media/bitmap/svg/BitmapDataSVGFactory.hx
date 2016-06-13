@@ -16,10 +16,9 @@ using types.DataStringTools;
 
 class BitmapDataSVGFactory
 {
-    private static var svgContext: SvgContext = new SvgContext();
-
-	static public function decodeData(data: Data, flipRGB: Bool, scale: Float): BitmapData
+    static public function decodeData(data: Data, flipRGB: Bool, scale: Float): BitmapData
     {
+		var svgContext: SvgContext = new SvgContext();
         var svgXml = Xml.parse(data.readString());
         var svgData = SvgContext.parseSvg(svgXml);
 
@@ -50,4 +49,3 @@ class BitmapDataSVGFactory
             BitmapComponentFormat.RGBA8888, ImageFormat.ImageFormatSVG, hasAlpha, hasPremultipliedAlpha);
     }
 }
-
