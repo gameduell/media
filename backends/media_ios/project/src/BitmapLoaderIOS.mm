@@ -80,7 +80,8 @@
 
     if(CGImageGetColorSpace(image))
     {
-        if(_hasAlpha)
+        //TODO We use RGBA8888 for the all color images until we make support for RGB888 as there is no performance loss at all, just small memory impact.
+        if(true || _hasAlpha)
             _pixelFormat = 0; // RGBA8888;
         else
             _pixelFormat = 1; // RGB565;

@@ -80,7 +80,8 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
 
     const LodePNGColorMode color = state.info_png.color;
 
-    if (lodepng_is_alpha_type(&color))
+    //TODO We use RGBA8888 for the all color images until we make support for RGB888 as there is no performance loss at all, just small memory impact.
+    if (true || lodepng_is_alpha_type(&color))
     {
         _hasAlpha = true;
         _hasPremultipliedAlpha = true;
