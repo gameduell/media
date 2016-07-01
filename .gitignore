@@ -1,5 +1,7 @@
 .idea/
 *.iml
+backends/media_cpp/ndll
+backends/media_cpp/project/obj
 backends/media_ios/ndll
 backends/media_ios/project/obj
 backends/media_android/ndll
