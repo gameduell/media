@@ -92,6 +92,7 @@ static value media_android_loadBitmapFromPng (value imageData, value nativeData,
     lodepng_state_init(&state);
     state.info_raw.colortype = LCT_RGBA;
     state.info_raw.bitdepth = 8;
+    state.decoder.ignore_crc = true;
 
     error = lodepng_decode(&image, &width, &height, &state, png, pngsize);
 
