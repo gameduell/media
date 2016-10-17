@@ -24,16 +24,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef __GNUC__
+  #define JAVA_EXPORT __attribute__ ((visibility("default"))) JNIEXPORT
+#else
+  #define JAVA_EXPORT JNIEXPORT
+#endif
+
 #ifndef STATIC_LINK
 #define IMPLEMENT_API
 #endif
 
+#include <jni.h>
 #include <hx/CFFI.h>
 #include <types/NativeData.h>
 
 #include "lodepng.h"
 #include "jpgd.h"
 #include "webpi/webp/decode.h"
+
+// async temp arguments
+static value* _onImageLoadedCallback = NULL;
+static value _imageData;
+static value _nativeData;
+static value _flipRGB;
+static value _result;
 
 static bool _hasAlpha;
 static bool _hasPremultipliedAlpha;
@@ -42,7 +56,23 @@ static unsigned int _height;
 static unsigned int _pixelFormat; // 0 = RGBA8888, 1 = RGB565, 2 = A8
 static const char* _errorMessage;
 
-static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, value flipRGB)
+static void media_android_setArguments(value imageData, value nativeData, value flipRGB, value callback)
+{
+    _imageData = imageData;
+    _nativeData = nativeData;
+    _flipRGB = flipRGB;
+
+    if (_onImageLoadedCallback == NULL)
+    {
+        _onImageLoadedCallback = alloc_root();
+    }
+
+    *_onImageLoadedCallback = callback;
+}
+DEFINE_PRIM (media_android_setArguments, 4);
+
+
+static value media_android_loadBitmapFromPng (value imageData, value nativeData, value flipRGB)
 {
     NativeData* ptrIn = ((NativeData*)val_data(imageData));
     NativeData* ptrOut = ((NativeData*)val_data(nativeData));
@@ -62,6 +92,7 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
     lodepng_state_init(&state);
     state.info_raw.colortype = LCT_RGBA;
     state.info_raw.bitdepth = 8;
+    state.decoder.ignore_crc = true;
 
     error = lodepng_decode(&image, &width, &height, &state, png, pngsize);
 
@@ -152,10 +183,10 @@ static value media_cpp_loadBitmapFromPng (value imageData, value nativeData, val
 
 	return alloc_bool(true);
 }
-DEFINE_PRIM (media_cpp_loadBitmapFromPng, 3);
+DEFINE_PRIM (media_android_loadBitmapFromPng, 3);
 
 
-static value media_cpp_loadBitmapFromJpg (value imageData, value nativeData, value flipRGB)
+static value media_android_loadBitmapFromJpg (value imageData, value nativeData, value flipRGB)
 {
     NativeData* ptrIn = ((NativeData*)val_data(imageData));
     NativeData* ptrOut = ((NativeData*)val_data(nativeData));
@@ -218,9 +249,9 @@ static value media_cpp_loadBitmapFromJpg (value imageData, value nativeData, val
 
     return alloc_bool(true);
 }
-DEFINE_PRIM (media_cpp_loadBitmapFromJpg, 3);
+DEFINE_PRIM (media_android_loadBitmapFromJpg, 3);
 
-static value media_cpp_loadBitmapFromWebP (value imageData, value nativeData, value flipRGB)
+static value media_android_loadBitmapFromWebP (value imageData, value nativeData, value flipRGB)
 {
     NativeData* ptrIn = ((NativeData*)val_data(imageData));
     NativeData* ptrOut = ((NativeData*)val_data(nativeData));
@@ -326,55 +357,93 @@ static value media_cpp_loadBitmapFromWebP (value imageData, value nativeData, va
 
     return alloc_bool(true);
 }
-DEFINE_PRIM (media_cpp_loadBitmapFromWebP, 3);
+DEFINE_PRIM (media_android_loadBitmapFromWebP, 3);
 
-static value media_cpp_getWidth()
+static value media_android_getWidth()
 {
     return alloc_int(_width);
 }
-DEFINE_PRIM (media_cpp_getWidth, 0);
+DEFINE_PRIM (media_android_getWidth, 0);
 
 
-static value media_cpp_getHeight()
+static value media_android_getHeight()
 {
     return alloc_int(_height);
 }
-DEFINE_PRIM (media_cpp_getHeight, 0);
+DEFINE_PRIM (media_android_getHeight, 0);
 
 
-static value media_cpp_hasAlpha()
+static value media_android_hasAlpha()
 {
     return alloc_bool(_hasAlpha);
 }
-DEFINE_PRIM (media_cpp_hasAlpha, 0);
+DEFINE_PRIM (media_android_hasAlpha, 0);
 
 
-static value media_cpp_hasPremultipliedAlpha()
+static value media_android_hasPremultipliedAlpha()
 {
     return alloc_bool(_hasPremultipliedAlpha);
 }
-DEFINE_PRIM (media_cpp_hasPremultipliedAlpha, 0);
+DEFINE_PRIM (media_android_hasPremultipliedAlpha, 0);
 
 
-static value media_cpp_getPixelFormat()
+static value media_android_getPixelFormat()
 {
     return alloc_int(_pixelFormat);
 }
-DEFINE_PRIM (media_cpp_getPixelFormat, 0);
+DEFINE_PRIM (media_android_getPixelFormat, 0);
 
-static value media_cpp_getErrorString()
+static value media_android_getErrorString()
 {
     return alloc_string(_errorMessage);
 }
-DEFINE_PRIM (media_cpp_getErrorString, 0);
+DEFINE_PRIM (media_android_getErrorString, 0);
+
+
+/// JNI calls
+extern "C" {
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadPngWithStaticArguments(JNIEnv* env);
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadJpgWithStaticArguments(JNIEnv* env);
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadWebPWithStaticArguments(JNIEnv* env);
+	JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_finishAsyncLoading(JNIEnv* env);
+};
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadPngWithStaticArguments(JNIEnv* env)
+{
+	_result = media_android_loadBitmapFromPng(_imageData, _nativeData, _flipRGB);
+}
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadJpgWithStaticArguments(JNIEnv* env)
+{
+	_result = media_android_loadBitmapFromJpg(_imageData, _nativeData, _flipRGB);
+}
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_loadWebPWithStaticArguments(JNIEnv* env)
+{
+	_result = media_android_loadBitmapFromWebP(_imageData, _nativeData, _flipRGB);
+}
+
+JAVA_EXPORT void JNICALL Java_org_haxe_duell_media_MediaNativeInterface_finishAsyncLoading(JNIEnv* env)
+{
+    int base = 0;
+    gc_set_top_of_stack(&base, true);
+
+	val_call1(*_onImageLoadedCallback, _result);
+
+	// cleanup
+	media_android_setArguments(NULL, NULL, NULL, NULL);
+	_result = NULL;
+
+	gc_set_top_of_stack(0, true);
+}
 
 
 /// OTHER
-extern "C" void media_cpp_main ()
+extern "C" void media_android_main ()
 {
 	val_int(0); // Fix Neko init
 }
-DEFINE_ENTRY_POINT (media_cpp_main);
+DEFINE_ENTRY_POINT (media_android_main);
 
 
-extern "C" int media_cpp_register_prims () { return 0; }
+extern "C" int media_android_register_prims () { return 0; }

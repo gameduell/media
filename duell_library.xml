@@ -3,16 +3,17 @@
 
 	<duelllib name="types" version="3.0.0+" />
 
+	<duelllib name="vectorx" version="2.0.2+" />
+
     <!--Warning: The order of the includes is important to determine which implementations are used-->
     <include path="backends/media_format/duell_library.xml" />
 
-    <include path="backends/media_cpp/duell_library.xml" if="android" />
-    <!--<include path="backends/media_html5/duell_library.xml" if="html5" />-->
+    <include path="backends/media_android/duell_library.xml" if="android" />
     <include path="backends/media_ios/duell_library.xml" if="ios" />
 
     <platform-config>
         <documentation>
-            <documentation-folder library="media" path="documenation" />
+            <documentation-folder library="media" path="documentation" />
         </documentation>
     </platform-config>
 

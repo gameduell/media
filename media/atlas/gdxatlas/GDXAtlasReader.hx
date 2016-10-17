@@ -27,119 +27,175 @@
 package media.atlas.gdxatlas;
 
 import haxe.io.Path;
+
 class GDXAtlasReader
 {
-    static var currentAtlas: GDXAtlasDef = null;
+	private var input: String;
+	private var currentIndex: Int;
 
-    public static function readFromString(fileAsString: String): GDXAtlasDef
-    {
-        currentAtlas = new GDXAtlasDef();
+	public static function readFromString(fileAsString: String): GDXAtlasDef
+	{
+		var reader = new GDXAtlasReader(fileAsString);
+		return reader.readAtlas();
+	}
 
-        if (Std.is(fileAsString, String))
-        {
-            var lines = fileAsString.split("\n");
+	private function new(file: String)
+	{
+		input = file;
+		currentIndex = 0;
+	}
 
-            // First line should be emtpy
-            lines.shift();
+	private function readAtlas(): GDXAtlasDef
+	{
+		var result = new GDXAtlasDef();
 
-            var line: String = lines.shift();
+		result.atlasImageName = readString();
+		var extension: String = result.atlasImageName.substr(result.atlasImageName.indexOf("."));
+		skipToNextLine();	// Skip size
+		skipToNextLine();	// Skip format
+		skipToNextLine();	// Skip filtering
+		skipToNextLine();	// Skip repeat mode
 
-            removeEnterFromLine(line);
-            parseAtlasImageName(line);
+		while (!isEndReached(currentIndex))
+		{
+			var def = new GDXAtlasImageDef();
+			def.name = readString() + extension;
+			skipString();	// rotate:
+			def.rotated = compareString("true");
+			skipString();
 
-            // TODO Ignore Size for now
-            line = lines.shift();
+			skipString();	// xy: X, Y
+			def.x = readInt();
+			skipString();
+			def.y = readInt();
 
-            // We do this check to support two output formats of the .atlas file
-            var checkLineArray: Array<String> = line.split(":");
-            if (checkLineArray[0] == "size")
-            {
-                // TODO Ignore Format for now
-                lines.shift();
-            }
-            else
-            {
-                // Size was actually already format
-            }
+			skipString();	// size: W, H
+			def.sizeWidth = readInt();
+			skipString();
+			def.sizeHeight = readInt();
 
-            // TODO Ignore Filter for now
-            lines.shift();
+			skipString();	// orig: X, Y
+			def.origSizeWidth = readInt();
+			skipString();
+			def.origSizeHeight = readInt();
 
-            // TODO Ignore Repeat for now
-            lines.shift();
+			skipString();	// offset: X, Y
+			def.offsetX = readInt();
+			skipString();
+			def.offsetY = readInt();
 
-            // Here a block of AtlasImageDef starts. It contains 7 Lines
-            while(lines.length > 6)
-            {
-                processBlock(lines.splice(0, 7));
-            }
-        }
+			skipString();	// index: I
+			def.index = readInt();
 
-        var out = currentAtlas;
-        currentAtlas = null;
-        return out;
-    }
+			result.imageDefinitions.push(def);
+		}
 
-    // This is to make it work on Windows
-    static private function removeEnterFromLine(line: String): Void
-    {
-        if (line.charCodeAt(line.length - 1) == 13)
-        {
-            line = line.substr(0, line.length - 1);
-        }
-    }
+		return result;
+	}
 
-    static private function parseAtlasImageName(line: String): Void
-    {
-        currentAtlas.atlasImageName = line;
-    }
+	private function skipWhitespace(index: Int): Int
+	{
+		while (isWhitespace(index) && !isEndReached(index))
+		{
+			++index;
+		}
+		return index;
+	}
 
-    static private function processBlock(block: Array<String>): Void
-    {
-        var atlasImageDef: GDXAtlasImageDef = new GDXAtlasImageDef();
+	private inline function isWhitespace(index: Int): Bool
+	{
+		var char: Int = input.charCodeAt(index);
+		return (char == ' '.code || char == '\t'.code || char == '\r'.code || char == '\n'.code);
+	}
 
-        var currentLine: String;
+	private inline function isEndReached(index: Int): Bool
+	{
+		return index >= input.length;
+	}
 
-        currentLine = block.shift();
-        removeEnterFromLine(currentLine);
-        atlasImageDef.name = currentLine + "." + Path.extension(currentAtlas.atlasImageName);
+	private function skipToNextLine(): Void
+	{
+		while (input.charCodeAt(currentIndex) != '\n'.code && input.charCodeAt(currentIndex) != '\r'.code && !isEndReached(currentIndex))
+		{
+			++currentIndex;
+		}
+		++currentIndex;
+	}
 
-        currentLine = block.shift();
-        removeEnterFromLine(currentLine);
-        currentLine.toLowerCase();
+	private function skipString(): Void
+	{
+		while (!isWhitespace(currentIndex) && !isEndReached(currentIndex))
+		{
+			++currentIndex;
+		}
+		currentIndex = skipWhitespace(currentIndex);
+	}
 
-        if (currentLine.split(" ").pop() == "true")
-        {
-            atlasImageDef.rotated = true;
-        }
+	private function readString(): String
+	{
+		if (isEndReached(currentIndex))
+		{
+			return null;
+		}
 
-        var stringIntArray: Array<String> = getNumbersFromLine(block.shift());
-        atlasImageDef.x = Std.parseInt(stringIntArray[0]);
-        atlasImageDef.y = Std.parseInt(stringIntArray[1]);
+		currentIndex = skipWhitespace(currentIndex);
 
-        stringIntArray = getNumbersFromLine(block.shift());
-        atlasImageDef.sizeWidth = Std.parseInt(stringIntArray[0]);
-        atlasImageDef.sizeHeight = Std.parseInt(stringIntArray[1]);
+		var start: Int = currentIndex;
+		var end: Int = currentIndex;
+		while (!isWhitespace(end) && !isEndReached(end))
+		{
+			++end;
+		}
 
-        stringIntArray = getNumbersFromLine(block.shift());
-        atlasImageDef.origSizeWidth = Std.parseInt(stringIntArray[0]);
-        atlasImageDef.origSizeHeight = Std.parseInt(stringIntArray[1]);
+		currentIndex = end;
+		currentIndex = skipWhitespace(currentIndex);
+		return input.substring(start, end);
+	}
 
-        stringIntArray = getNumbersFromLine(block.shift());
-        atlasImageDef.offsetX = Std.parseInt(stringIntArray[0]);
-        atlasImageDef.offsetY = Std.parseInt(stringIntArray[1]);
+	private inline function compareString(value: String): Bool
+	{
+		var index: Int = currentIndex;
+		var valueIndex: Int = 0;
+		while (!isEndReached(index) && valueIndex < value.length && input.charCodeAt(index) == value.charCodeAt(valueIndex))
+		{
+			++index;
+			++valueIndex;
+		}
 
-        stringIntArray = getNumbersFromLine(block.shift());
-        atlasImageDef.index = Std.parseInt(stringIntArray[0]);
+		return valueIndex == value.length;
+	}
 
-        currentAtlas.imageDefinitions.push(atlasImageDef);
-    }
+	private function readInt(): Int
+	{
+		var result: Int = 0;
 
-    static function getNumbersFromLine(line: String): Array<String>
-    {
-        removeEnterFromLine(line);
-        line.toLowerCase();
+		var negate: Bool = false;
+		if (input.charCodeAt(currentIndex) == '-'.code)
+		{
+			negate = true;
+			++currentIndex;
+		}
+		else if (input.charCodeAt(currentIndex) == '+'.code)
+		{
+			++currentIndex;
+		}
 
-        return line.split(": ").pop().split(", ");
-    }
+		var char: Int = input.charCodeAt(currentIndex);
+		while (!isEndReached(currentIndex) && char >= '0'.code && char <= '9'.code)
+		{
+			result *= 10;
+			result += char - '0'.code;
+			++currentIndex;
+			char = input.charCodeAt(currentIndex);
+		}
+
+		if (negate)
+		{
+			result = -result;
+		}
+
+		currentIndex = skipWhitespace(currentIndex);
+
+		return result;
+	}
 }

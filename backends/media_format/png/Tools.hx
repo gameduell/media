@@ -655,7 +655,6 @@ class Tools {
 		var r = 0, w = 0;
 		switch( h.color ) {
 		case ColIndexed:
-			trace("Very Indexed");
 			var pal = getPalette(d);
 			if( pal == null ) throw "PNG Palette is missing";
 

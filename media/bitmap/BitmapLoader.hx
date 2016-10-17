@@ -28,8 +28,16 @@ package media.bitmap;
 
 import types.Data;
 
+/// This class is not thread-safe.
 extern class BitmapLoader
 {
     /// Returns bitmapData with raw pixels in RGB(A) order. If flipRGB is set to true you get BGR(A). Its is set to true by default for backwards compatibility.
-    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true): BitmapData;
+    /// scale is only used for SVG loading to scale up or down the canvas
+    static public function bitmapFromImageData(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
+                                               scale: Float = 1.0): BitmapData;
+
+    /// The same behavior as `bitmapFromImageData`, except it tries to do the decoding async in the platforms where
+    /// possible. The result is returned to the callback.
+    static public function bitmapFromImageDataAsync(data: Data, imageFormat: ImageFormat, flipRGB: Bool = true,
+                                                    scale: Float = 1.0, callback: BitmapData -> Void = null): Void;
 }

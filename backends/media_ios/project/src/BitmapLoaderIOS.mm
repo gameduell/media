@@ -34,6 +34,18 @@
 
 @implementation BitmapLoaderIOS
 
+
++ (value) loadAsyncBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB callback:(value*)callback
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        value result = [BitmapLoaderIOS loadBitmap:imageData outData:outData flipRGB:flipRGB];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            val_call1(*callback, result);
+        });
+    });
+}
+
 + (value) loadBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB
 {
     _hasAlpha = false;
@@ -237,6 +249,17 @@
     uiImageData = nil;
 
     return alloc_bool(true);
+}
+
++ (value) loadAsyncWebPBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB callback:(value*)callback
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        value result = [BitmapLoaderIOS loadWebPBitmap:imageData outData:outData flipRGB:flipRGB];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            val_call1(*callback, result);
+        });
+    });
 }
 
 + (value) loadWebPBitmap:(NativeData*)imageData outData:(NativeData*)outData flipRGB:(BOOL)flipRGB;

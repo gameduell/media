@@ -30,5 +30,6 @@ enum ImageFormat
     ImageFormatPNG;
     ImageFormatJPG;
     ImageFormatWEBP;
+    ImageFormatSVG;
     ImageFormatOther;
 }
