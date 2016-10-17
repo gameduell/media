@@ -256,7 +256,7 @@
     
     VP8StatusCode featuresResult = WebPGetFeatures((uint8_t*)webp, webpsize, &features);
 
-    NSLog(@"Test!");
+   // NSLog(@"Test!");
     
     if (featuresResult != VP8_STATUS_OK)
     {
@@ -268,7 +268,8 @@
         _errorMessage = "noerror";
     }
 
-    if (features.has_alpha)
+    //TODO We use RGBA8888 for the all color images until we make support for RGB888 as there is no performance loss at all, just small memory impact.
+    if(true || features.has_alpha)
     {
         _hasAlpha = true;
         _hasPremultipliedAlpha = true;

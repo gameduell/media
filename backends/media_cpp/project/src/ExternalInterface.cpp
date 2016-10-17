@@ -245,7 +245,8 @@ static value media_cpp_loadBitmapFromWebP (value imageData, value nativeData, va
         _errorMessage = "noerror";
     }
 
-    if (features.has_alpha)
+    //TODO We use RGBA8888 for the all color images until we make support for RGB888 as there is no performance loss at all, just small memory impact.
+    if (true || features.has_alpha)
     {
         _hasAlpha = true;
         _hasPremultipliedAlpha = true;
